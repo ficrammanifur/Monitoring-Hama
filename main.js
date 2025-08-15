@@ -1,8 +1,13 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    // Ganti ini jika ingin manual set URL backend
-    // Kalau kosong (""), otomatis pakai alamat origin website yang sedang dibuka
-    this.baseURL = "https://46e78cd750d8.ngrok-free.app" || window.location.origin;
+    // Centralized base URL configuration (update this for new ngrok or production URL)
+    this.baseURL = "https://46e78cd750d8.ngrok-free.app"; // Default ngrok HTTPS URL
+
+    // Dynamically set baseURL from a config file or environment variable (if available)
+    this.initializeBaseURL();
+
+    // Define endpoints as a method to derive from baseURL
+    this.endpoints = this.getEndpoints();
 
     this.lastDetectionCount = 0;
     this.refreshInterval = null;
@@ -15,9 +20,43 @@ class MonkeyDetectionMonitor {
     this.startMonitoring();
   }
 
-  // Helper untuk membuat endpoint
-  apiUrl(path) {
-    return `${this.baseURL}${path}`;
+  initializeBaseURL() {
+    // Optionally load baseURL from a config file or environment variable
+    // For simplicity, we'll use a fallback to the default baseURL
+    // Example: Load from a config.json file (uncomment to use)
+    /*
+    try {
+      fetch('/config.json')
+        .then(response => response.json())
+        .then(config => {
+          if (config.baseURL) {
+            this.baseURL = config.baseURL;
+            console.log(`Base URL loaded from config: ${this.baseURL}`);
+          }
+        })
+        .catch(error => console.warn("Failed to load config.json, using default baseURL:", error));
+    } catch (error) {
+      console.warn("Config loading not supported in this environment:", error);
+    }
+    */
+    // Alternatively, use an environment variable (e.g., via process.env in Node.js with a bundler)
+    // For browser-based apps, you can prompt the user or use a query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const customBaseURL = urlParams.get('baseURL');
+    if (customBaseURL) {
+      this.baseURL = customBaseURL;
+      console.log(`Base URL set from query parameter: ${this.baseURL}`);
+    }
+  }
+
+  getEndpoints() {
+    // Centralize all endpoint URLs, derived from baseURL
+    return {
+      videoFeed: `${this.baseURL}/video_feed`,
+      history: `${this.baseURL}/api/history`,
+      status: `${this.baseURL}/api/status`,
+      clearHistory: `${this.baseURL}/api/clear_history`
+    };
   }
 
   initializeElements() {
@@ -40,7 +79,7 @@ class MonkeyDetectionMonitor {
       this.videoFeed.classList.add("loaded");
       this.videoOverlay.classList.add("hidden");
       this.updateSystemStatus(true);
-      this.videoRetryAttempts = 0;
+      this.videoRetryAttempts = 0; // Reset retries on success
     });
 
     this.videoFeed.addEventListener("error", () => {
@@ -85,7 +124,7 @@ class MonkeyDetectionMonitor {
   }
 
   initializeVideoFeed() {
-    this.videoFeed.src = `${this.apiUrl("/video_feed")}?t=${Date.now()}`;
+    this.videoFeed.src = `${this.endpoints.videoFeed}?t=${Date.now()}`;
   }
 
   retryVideoFeed() {
@@ -104,11 +143,11 @@ class MonkeyDetectionMonitor {
   async loadHistoryData() {
     try {
       this.showLoadingState();
-      const response = await fetch(this.apiUrl("/api/history"), {
-        method: "GET",
+      const response = await fetch(this.endpoints.history, {
+        method: 'GET',
         headers: {
-          Accept: "application/json",
-        },
+          'Accept': 'application/json'
+        }
       });
 
       if (!response.ok) {
