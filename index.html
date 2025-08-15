@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monkey Detection Monitoring System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🐒 Monkey Detection System</h1>
+            <div class="status-indicator" id="systemStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Live Feed Section -->
+            <section class="live-feed-section">
+                <div class="card">
+                    <h2>Live Camera Feed</h2>
+                    <div class="video-container">
+                        <img id="videoFeed" src="/placeholder.svg" alt="Live camera feed" class="video-feed">
+                        <div class="video-overlay" id="videoOverlay">
+                            <div class="loading-spinner"></div>
+                            <p>Connecting to camera...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stats Cards -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🐒</div>
+                        <div class="stat-content">
+                            <h3>Monkeys Detected</h3>
+                            <p class="stat-number" id="monkeyCount">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-content">
+                            <h3>Last Detection</h3>
+                            <p class="stat-time" id="lastDetection">Never</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <h3>System Status</h3>
+                            <p class="stat-status" id="systemStatusText">Idle</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detection History -->
+            <section class="history-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Detection History</h2>
+                        <button class="refresh-btn" id="refreshBtn">
+                            <span class="refresh-icon">🔄</span>
+                            Refresh
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Monkey Count</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr class="no-data">
+                                    <td colspan="3">
+                                        <div class="loading-spinner small"></div>
+                                        Loading history...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="main.js"></script>
+</body>
+</html>
