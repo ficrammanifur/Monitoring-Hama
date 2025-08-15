@@ -1,8 +1,8 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "https://46e78cd750d8.ngrok-free.app"; // Ngrok HTTPS URL
-    this.videoFeedURL = `${this.baseURL}/video_feed`;
-    this.historyAPI = `${this.baseURL}/api/history`;
+    // Ganti ini jika ingin manual set URL backend
+    // Kalau kosong (""), otomatis pakai alamat origin website yang sedang dibuka
+    this.baseURL = "https://46e78cd750d8.ngrok-free.app" || window.location.origin;
 
     this.lastDetectionCount = 0;
     this.refreshInterval = null;
@@ -13,6 +13,11 @@ class MonkeyDetectionMonitor {
     this.initializeElements();
     this.setupEventListeners();
     this.startMonitoring();
+  }
+
+  // Helper untuk membuat endpoint
+  apiUrl(path) {
+    return `${this.baseURL}${path}`;
   }
 
   initializeElements() {
@@ -35,7 +40,7 @@ class MonkeyDetectionMonitor {
       this.videoFeed.classList.add("loaded");
       this.videoOverlay.classList.add("hidden");
       this.updateSystemStatus(true);
-      this.videoRetryAttempts = 0; // Reset retries on success
+      this.videoRetryAttempts = 0;
     });
 
     this.videoFeed.addEventListener("error", () => {
@@ -80,7 +85,7 @@ class MonkeyDetectionMonitor {
   }
 
   initializeVideoFeed() {
-    this.videoFeed.src = `${this.videoFeedURL}?t=${Date.now()}`;
+    this.videoFeed.src = `${this.apiUrl("/video_feed")}?t=${Date.now()}`;
   }
 
   retryVideoFeed() {
@@ -99,11 +104,11 @@ class MonkeyDetectionMonitor {
   async loadHistoryData() {
     try {
       this.showLoadingState();
-      const response = await fetch(this.historyAPI, {
-        method: 'GET',
+      const response = await fetch(this.apiUrl("/api/history"), {
+        method: "GET",
         headers: {
-          'Accept': 'application/json'
-        }
+          Accept: "application/json",
+        },
       });
 
       if (!response.ok) {
