@@ -380,8 +380,7 @@ ngrok http 5000
 ```html
 <!-- Pastikan viewport meta tag ada di index.html -->
 `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
-
-```plaintext
+```
 
 ## 📊 System Architecture
 
