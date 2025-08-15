@@ -7,6 +7,8 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-222222?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com/)
 
+Monkey Detection Frontend Dashboard adalah antarmuka web modern untuk sistem monitoring deteksi monyet berbasis YOLOv8. Dashboard ini menyediakan visualisasi real-time, statistik deteksi, dan riwayat aktivitas dalam desain yang responsif dan user-friendly.
+
 </div>
 
 ---
@@ -30,10 +32,6 @@
 - [🤝 Contributing](#-contributing)
 - [📝 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
-
-## 🎯 Tentang Proyek
-
-Monkey Detection Frontend Dashboard adalah antarmuka web modern untuk sistem monitoring deteksi monyet berbasis YOLOv8. Dashboard ini menyediakan visualisasi real-time, statistik deteksi, dan riwayat aktivitas dalam desain yang responsif dan user-friendly.
 
 ### 🌟 Highlights
 
@@ -125,38 +123,6 @@ npx serve .
 
 # 3. Open browser
 open http://localhost:8000
-```
-
----
-<div align="center">
-### 🌍 Production Deployment
-#### GitHub Pages (Recommended)
-</div>
-
-### 1. Push ke GitHub repository
-```bash
-git add .
-git commit -m "Deploy frontend dashboard"
-git push origin main
-```
-### 2. Enable GitHub Pages di repository settings
-### 3. Dashboard akan tersedia di: https://yourusername.github.io/repo-name
-
-#### Netlify Deployment
-
-### 1. Connect GitHub repository ke Netlify
-### 2. Set build command: (kosong)
-### 3. Set publish directory: /
-### 4. Deploy otomatis setiap push ke main branch
-
-#### Vercel Deployment
-
-```bash
-# 1. Install Vercel CLI
-npm i -g vercel
-# 2. Deploy
-vercel --prod
-# 3. Follow prompts untuk configuration
 ```
 
 ## 🔧 Konfigurasi
@@ -675,7 +641,7 @@ function updateStatistics() {}                      // camelCase for functions
 
 <div align="center">
   
-## 🐒 Protecting Wildlife with Technology 🌿
+🐒 Protecting Wildlife with Technology 🌿
 
 
 **⭐ Star this repository if you found it helpful!**
