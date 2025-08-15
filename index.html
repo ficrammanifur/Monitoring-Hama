@@ -11,7 +11,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <h1>🐒 Monkey Detection System</h1>
             <div class="status-indicator" id="systemStatus">
@@ -20,23 +19,20 @@
             </div>
         </header>
 
-        <!-- Main Dashboard -->
         <main class="dashboard">
-            <!-- Live Feed Section -->
             <section class="live-feed-section">
                 <div class="card">
-                    <h2>Live Camera Feed</h2>
+                    <h2>Live Webcam Feed</h2>
                     <div class="video-container">
-                        <img id="videoFeed" src="/placeholder.svg" alt="Live camera feed" class="video-feed">
+                        <img id="videoFeed" src="/placeholder.svg" alt="Live webcam feed" class="video-feed">
                         <div class="video-overlay" id="videoOverlay">
                             <div class="loading-spinner"></div>
-                            <p>Connecting to camera...</p>
+                            <p>Connecting to webcam...</p>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Stats Cards -->
             <section class="stats-section">
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -46,7 +42,6 @@
                             <p class="stat-number" id="monkeyCount">0</p>
                         </div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-icon">⏰</div>
                         <div class="stat-content">
@@ -54,7 +49,6 @@
                             <p class="stat-time" id="lastDetection">Never</p>
                         </div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-icon">📊</div>
                         <div class="stat-content">
@@ -65,7 +59,6 @@
                 </div>
             </section>
 
-            <!-- Detection History -->
             <section class="history-section">
                 <div class="card">
                     <div class="card-header">
@@ -75,7 +68,6 @@
                             Refresh
                         </button>
                     </div>
-                    
                     <div class="table-container">
                         <table class="history-table">
                             <thead>
@@ -100,7 +92,6 @@
         </main>
     </div>
 
-    <!-- Toast Notifications -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script src="main.js"></script>
