@@ -1,12 +1,12 @@
 class MonkeyDetectionMonitor {
   constructor() {
     // Centralized base URL configuration (update this for new ngrok or production URL)
-    this.baseURL = "https://46e78cd750d8.ngrok-free.app"; // Default ngrok HTTPS URL
+    this.baseURL = "https://866dea127727.ngrok-free.app -> http://localhost:5000"; // Default ngrok HTTPS URL
 
-    // Dynamically set baseURL from a config file or environment variable (if available)
+    // Dynamically set baseURL from a query parameter (if provided)
     this.initializeBaseURL();
 
-    // Define endpoints as a method to derive from baseURL
+    // Define endpoints derived from baseURL
     this.endpoints = this.getEndpoints();
 
     this.lastDetectionCount = 0;
@@ -21,26 +21,7 @@ class MonkeyDetectionMonitor {
   }
 
   initializeBaseURL() {
-    // Optionally load baseURL from a config file or environment variable
-    // For simplicity, we'll use a fallback to the default baseURL
-    // Example: Load from a config.json file (uncomment to use)
-    /*
-    try {
-      fetch('/config.json')
-        .then(response => response.json())
-        .then(config => {
-          if (config.baseURL) {
-            this.baseURL = config.baseURL;
-            console.log(`Base URL loaded from config: ${this.baseURL}`);
-          }
-        })
-        .catch(error => console.warn("Failed to load config.json, using default baseURL:", error));
-    } catch (error) {
-      console.warn("Config loading not supported in this environment:", error);
-    }
-    */
-    // Alternatively, use an environment variable (e.g., via process.env in Node.js with a bundler)
-    // For browser-based apps, you can prompt the user or use a query parameter
+    // Check for baseURL in query parameter (e.g., ?baseURL=https://new-url.ngrok-free.app)
     const urlParams = new URLSearchParams(window.location.search);
     const customBaseURL = urlParams.get('baseURL');
     if (customBaseURL) {
@@ -80,6 +61,7 @@ class MonkeyDetectionMonitor {
       this.videoOverlay.classList.add("hidden");
       this.updateSystemStatus(true);
       this.videoRetryAttempts = 0; // Reset retries on success
+      console.log("Video feed loaded successfully");
     });
 
     this.videoFeed.addEventListener("error", () => {
@@ -125,6 +107,7 @@ class MonkeyDetectionMonitor {
 
   initializeVideoFeed() {
     this.videoFeed.src = `${this.endpoints.videoFeed}?t=${Date.now()}`;
+    console.log(`Attempting to load video feed from: ${this.videoFeed.src}`);
   }
 
   retryVideoFeed() {
@@ -143,6 +126,7 @@ class MonkeyDetectionMonitor {
   async loadHistoryData() {
     try {
       this.showLoadingState();
+      console.log(`Fetching history from: ${this.endpoints.history}`);
       const response = await fetch(this.endpoints.history, {
         method: 'GET',
         headers: {
@@ -151,7 +135,8 @@ class MonkeyDetectionMonitor {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, response: ${errorText}`);
       }
 
       const data = await response.json();
@@ -164,7 +149,7 @@ class MonkeyDetectionMonitor {
       this.updateSystemStatus(true);
     } catch (error) {
       console.error("Failed to load history data:", error);
-      this.handleAPIError();
+      this.handleAPIError(error);
       this.updateSystemStatus(false);
     } finally {
       this.hideLoadingState();
@@ -242,15 +227,15 @@ class MonkeyDetectionMonitor {
     this.refreshBtn.classList.remove("loading");
   }
 
-  handleAPIError() {
+  handleAPIError(error) {
     this.historyTableBody.innerHTML = `
       <tr class="no-data">
         <td colspan="3">
-          <span style="color: #ef4444;">Failed to load data. Check backend connection.</span>
+          <span style="color: #ef4444;">Failed to load data: ${error.message}</span>
         </td>
       </tr>
     `;
-    this.showToast("Failed to connect to backend server", "error");
+    this.showToast(`Failed to connect to backend server: ${error.message}`, "error");
   }
 
   refreshData() {
