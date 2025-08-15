@@ -1,6 +1,7 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "https://96681deb328d.ngrok-free.app -> http://localhost:5000"; // Use ngrok HTTPS URL if deploying
+    // Replace with your ngrok HTTPS URL
+    this.baseURL = "https://a6a60ff01741.ngrok-free.app -> http://localhost:5000"; // Update this after running ngrok
     this.videoFeedURL = `${this.baseURL}/video_feed`;
     this.historyAPI = `${this.baseURL}/api/history`;
 
@@ -82,7 +83,12 @@ class MonkeyDetectionMonitor {
   async loadHistoryData() {
     try {
       this.showLoadingState();
-      const response = await fetch(this.historyAPI);
+      const response = await fetch(this.historyAPI, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
