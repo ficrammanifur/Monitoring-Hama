@@ -80,22 +80,11 @@ Monkey Detection Frontend Dashboard adalah antarmuka web modern untuk sistem mon
 - Accessibility compliant dengan ARIA labels
 - Dark mode optimized untuk penggunaan 24/7
 
-## 🖼️ Screenshots
-
-### 🖥️ Desktop View
-![Desktop Dashboard](screenshots/desktop-view.png)
-
-### 📱 Mobile View
-![Mobile Dashboard](screenshots/mobile-view.png)
-
-### 📊 Statistics Cards
-![Statistics](screenshots/statistics-cards.png)
-
 ## 🚀 Quick Start
 
 ### ⚡ 1-Minute Setup
 
-\`\`\`bash
+```bash
 # Clone repository
 git clone https://github.com/yourusername/monkey-detection-frontend.git
 cd monkey-detection-frontend
@@ -103,7 +92,7 @@ cd monkey-detection-frontend
 # Open in browser
 open index.html
 # Atau double-click file index.html
-\`\`\`
+```
 
 ### 🌐 GitHub Pages Deployment
 
@@ -124,7 +113,7 @@ open index.html
 
 ### 🔧 Local Development
 
-\`\`\`bash
+```bash
 # 1. Clone repository
 git clone https://github.com/yourusername/monkey-detection-frontend.git
 cd monkey-detection-frontend
@@ -136,13 +125,13 @@ npx serve .
 
 # 3. Open browser
 open http://localhost:8000
-\`\`\`
+```
 
 ### 🌍 Production Deployment
 
 #### GitHub Pages (Recommended)
 
-\`\`\`bash
+```bash
 # 1. Push ke GitHub repository
 git add .
 git commit -m "Deploy frontend dashboard"
@@ -150,20 +139,20 @@ git push origin main
 
 # 2. Enable GitHub Pages di repository settings
 # 3. Dashboard akan tersedia di: https://yourusername.github.io/repo-name
-\`\`\`
+```
 
 #### Netlify Deployment
 
-\`\`\`bash
+```bash
 # 1. Connect GitHub repository ke Netlify
 # 2. Set build command: (kosong)
 # 3. Set publish directory: /
 # 4. Deploy otomatis setiap push ke main branch
-\`\`\`
+```
 
 #### Vercel Deployment
 
-\`\`\`bash
+```bash
 # 1. Install Vercel CLI
 npm i -g vercel
 
@@ -171,7 +160,7 @@ npm i -g vercel
 vercel --prod
 
 # 3. Follow prompts untuk configuration
-\`\`\`
+```
 
 ## 🔧 Konfigurasi
 
@@ -179,7 +168,7 @@ vercel --prod
 
 Edit `main.js` untuk mengubah endpoint backend:
 
-\`\`\`javascript
+```javascript
 // API Configuration
 const API_BASE_URL = 'http://localhost:5000/api';  // Development
 // const API_BASE_URL = 'https://your-backend.herokuapp.com/api';  // Production
@@ -191,13 +180,13 @@ const VIDEO_STREAM_URL = 'http://localhost:5000/video_feed';  // Development
 // Update intervals (milliseconds)
 const REFRESH_INTERVAL = 5000;  // 5 seconds
 const RETRY_INTERVAL = 3000;    // 3 seconds for failed requests
-\`\`\`
+```
 
 ### 🎨 Theme Customization
 
 Edit `style.css` untuk mengubah tema:
 
-\`\`\`css
+```css
 :root {
   /* Primary Colors */
   --primary-green: #00ff88;    /* Change to your brand color */
@@ -209,11 +198,11 @@ Edit `style.css` untuk mengubah tema:
   --text-secondary: #b0b0b0;   /* Secondary text */
   --text-muted: #666666;       /* Muted text */
 }
-\`\`\`
+```
 
 ### 📱 Responsive Breakpoints
 
-\`\`\`css
+```css
 /* Customize responsive behavior */
 @media (max-width: 768px) {
   .stats-grid {
@@ -226,7 +215,7 @@ Edit `style.css` untuk mengubah tema:
     max-width: 1400px;  /* Wider on large screens */
   }
 }
-\`\`\`
+```
 
 ## 📡 API Integration
 
@@ -397,7 +386,6 @@ ngrok http 5000
 ## 📊 System Architecture
 
 ```
-
 ┌─────────────────┐    HTTP/API     ┌──────────────────┐    Camera    ┌─────────────────┐
 │  Web Dashboard  │◄───────────────►│  Flask Backend   │◄────────────►│   Camera/Video  │
 │                 │                 │                  │              │     Input       │
@@ -406,12 +394,11 @@ ngrok http 5000
 │ - Statistics    │                 │ - Detection API  │              │ - IP Camera     │
 │ - History Table │                 │ - Data Storage   │              │ - Video File    │
 └─────────────────┘                 └──────────────────┘              └─────────────────┘
-
-```plaintext
+```
 
 ## 🔄 Data Flow Diagram
 
-\`\`\`mermaid
+```mermaid
 flowchart TD
     A[📹 Camera Input] --> B[🤖 YOLOv8 Model]
     B --> C{🔍 Object Detection}
@@ -487,12 +474,11 @@ flowchart TD
 --status-online: `#00ff88`;    /* Online status */
 --status-offline: `#ff4444`;   /* Offline status */
 --status-warning: `#ffaa00`;   /* Warning status */
-
-```plaintext
+```
 
 ### Typography
 
-\`\`\`css
+```css
 /* Font Family */
 font-family: 'Poppins', sans-serif;
 
@@ -510,14 +496,13 @@ font-family: 'Poppins', sans-serif;
 @media (min-width: 768px)  { /* Tablet */ }
 @media (min-width: 1024px) { /* Desktop */ }
 @media (min-width: 1280px) { /* Large Desktop */ }
-
-```plaintext
+```
 
 ## 🚀 Advanced Features
 
 ### 1. Real-time Notifications
 
-\`\`\`javascript
+```javascript
 // Implementasi WebSocket untuk real-time updates
 const ws = new WebSocket('ws://localhost:5000/ws');
 ws.onmessage = function(event) {
@@ -538,12 +523,11 @@ const data = detectionHistory;
 const csv = convertToCSV(data);
 downloadCSV(csv, 'monkey_detections.csv');
 }
-
-```plaintext
+```
 
 ### 3. Custom Alerts
 
-\`\`\`javascript
+```javascript
 // Set threshold untuk alert
 const ALERT_THRESHOLD = 5; // Alert jika > 5 monyet
 if (monkeyCount > ALERT_THRESHOLD) {
@@ -560,14 +544,13 @@ apiResponseTime: 0,
 videoStreamLatency: 0,
 detectionAccuracy: 0
 };
-
-```plaintext
+```
 
 ## 📈 Performance Optimization
 
 ### Frontend Optimization
 
-\`\`\`javascript
+```javascript
 // Debounce API calls
 const debouncedRefresh = debounce(refreshData, 1000);
 
@@ -591,8 +574,7 @@ const MAX_HISTORY_ENTRIES = 100;
 if (historyData.length > MAX_HISTORY_ENTRIES) {
 historyData = historyData.slice(-MAX_HISTORY_ENTRIES);
 }
-
-```plaintext
+```
 
 ## 🔒 Security Considerations
 
@@ -606,7 +588,7 @@ historyData = historyData.slice(-MAX_HISTORY_ENTRIES);
 
 ### API Security
 
-\`\`\`javascript
+```javascript
 // Validate API responses
 function validateApiResponse(response) {
     if (!response || typeof response !== 'object') {
@@ -641,15 +623,12 @@ git checkout -b feature/amazing-feature
 
 
 ### Commit Changes
-
 ```bash
 git commit -m 'Add amazing feature'
-
-```plaintext
+```
 
 ### Push and Create PR
-
-\`\`\`bash
+```bash
 git push origin feature/amazing-feature
 # Create Pull Request di GitHub
 ```
@@ -663,8 +642,7 @@ git push origin feature/amazing-feature
 const API_BASE_URL = '[http://localhost:5000/api](http://localhost:5000/api)';  // UPPER_SNAKE_CASE for constants
 let detectionCount = 0;                             // camelCase for variables
 function updateStatistics() {}                      // camelCase for functions
-
-```plaintext
+```
 
 #### Testing Checklist
 
@@ -674,28 +652,6 @@ function updateStatistics() {}                      // camelCase for functions
 - [ ] Test dengan slow network connection
 - [ ] Validate HTML/CSS
 - [ ] Check console untuk errors
-
-## 📝 License
-
-Project ini menggunakan MIT License. Lihat file [LICENSE](LICENSE) untuk detail lengkap.
-
-```
-
-MIT License
-
-Copyright (c) 2024 Monkey Detection System
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-```plaintext
 
 ## 🙏 Acknowledgments
 
@@ -731,7 +687,7 @@ copies or substantial portions of the Software.
 - [Backend YOLOv8 API](https://github.com/yourusername/monkey-detection-backend)
 - [Mobile App Version](https://github.com/yourusername/monkey-detection-mobile)
 - [Desktop Application](https://github.com/yourusername/monkey-detection-desktop)
-```
+
 ---
 
 <div align="center">
