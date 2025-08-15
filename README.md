@@ -7,10 +7,6 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-222222?style=for-the-badge&logo=github&logoColor=white)](https://pages.github.com/)
 
-**🌟 Modern Real-time Monitoring Dashboard untuk Sistem Deteksi Monyet YOLOv8 🌟**
-
-[🚀 Live Demo](https://yourusername.github.io/monkey-detection-frontend) • [📖 Documentation](#-dokumentasi) • [🐛 Report Bug](https://github.com/yourusername/monkey-detection-frontend/issues) • [💡 Request Feature](https://github.com/yourusername/monkey-detection-frontend/issues)
-
 </div>
 
 ---
@@ -26,6 +22,7 @@
 - [📡 API Integration](#-api-integration)
 - [🔧 Troubleshooting](#-troubleshooting)
 - [📊 System Architecture](#-system-architecture)
+- [🔄 Data Flow Diagram](#-data-flow-diagram)
 - [🎨 UI Components](#-ui-components)
 - [🚀 Advanced Features](#-advanced-features)
 - [📈 Performance Optimization](#-performance-optimization)
@@ -36,73 +33,69 @@
 
 ## 🎯 Tentang Proyek
 
-**Monkey Detection Frontend Dashboard** adalah antarmuka web modern untuk sistem monitoring deteksi monyet berbasis YOLOv8. Dashboard ini menyediakan visualisasi real-time, statistik deteksi, dan riwayat aktivitas dalam desain yang responsif dan user-friendly.
+Monkey Detection Frontend Dashboard adalah antarmuka web modern untuk sistem monitoring deteksi monyet berbasis YOLOv8. Dashboard ini menyediakan visualisasi real-time, statistik deteksi, dan riwayat aktivitas dalam desain yang responsif dan user-friendly.
 
 ### 🌟 Highlights
 
-- **🎨 Modern Dark Theme** dengan aksen hijau yang eye-catching
-- **📱 Fully Responsive** - Perfect di desktop, tablet, dan mobile
-- **⚡ Real-time Updates** setiap 5 detik otomatis
-- **🔔 Smart Notifications** untuk deteksi baru
-- **📊 Interactive Statistics** dengan animasi smooth
-- **📋 Comprehensive History** dengan filtering dan search
-- **🚀 Zero Dependencies** - Pure HTML, CSS, JavaScript
-- **🌐 GitHub Pages Ready** - Deploy dalam hitungan menit
+- 🎨 **Modern Dark Theme** dengan aksen hijau yang eye-catching
+- 📱 **Fully Responsive** - Perfect di desktop, tablet, dan mobile
+- ⚡ **Real-time Updates** setiap 5 detik otomatis
+- 🔔 **Smart Notifications** untuk deteksi baru
+- 📊 **Interactive Statistics** dengan animasi smooth
+- 📋 **Comprehensive History** dengan filtering dan search
+- 🚀 **Zero Dependencies** - Pure HTML, CSS, JavaScript
+- 🌐 **GitHub Pages Ready** - Deploy dalam hitungan menit
 
 ## ✨ Fitur Utama
 
 ### 🎥 Live Video Monitoring
-- **Real-time video feed** dari backend YOLOv8
-- **Adaptive streaming** dengan fallback handling
-- **Full-screen mode** untuk monitoring detail
-- **Connection status indicator** dengan auto-reconnect
+- Real-time video feed dari backend YOLOv8
+- Adaptive streaming dengan fallback handling
+- Full-screen mode untuk monitoring detail
+- Connection status indicator dengan auto-reconnect
 
 ### 📊 Smart Statistics Dashboard
-- **Current monkey count** dengan real-time updates
-- **Last detection timestamp** dengan relative time
-- **System status monitoring** (Online/Offline/Warning)
-- **Daily detection summary** dengan trend indicators
+- Current monkey count dengan real-time updates
+- Last detection timestamp dengan relative time
+- System status monitoring (Online/Offline/Warning)
+- Daily detection summary dengan trend indicators
 
 ### 📋 Advanced History Management
-- **Comprehensive detection log** dengan timestamp detail
-- **Sortable columns** untuk analisis data
-- **Search functionality** untuk filter cepat
-- **Export capabilities** ke CSV format
-- **Pagination support** untuk dataset besar
+- Comprehensive detection log dengan timestamp detail
+- Sortable columns untuk analisis data
+- Search functionality untuk filter cepat
+- Export capabilities ke CSV format
+- Pagination support untuk dataset besar
 
 ### 🔔 Intelligent Notifications
-- **Toast notifications** untuk deteksi baru
-- **Sound alerts** (optional) untuk high-priority events
-- **Custom alert thresholds** untuk monitoring khusus
-- **Notification history** dengan dismiss functionality
+- Toast notifications untuk deteksi baru
+- Sound alerts (optional) untuk high-priority events
+- Custom alert thresholds untuk monitoring khusus
+- Notification history dengan dismiss functionality
 
 ### 🎨 Premium UI/UX
-- **Smooth animations** dan micro-interactions
-- **Loading states** untuk semua async operations
-- **Error boundaries** dengan user-friendly messages
-- **Accessibility compliant** dengan ARIA labels
-- **Dark mode optimized** untuk penggunaan 24/7
+- Smooth animations dan micro-interactions
+- Loading states untuk semua async operations
+- Error boundaries dengan user-friendly messages
+- Accessibility compliant dengan ARIA labels
+- Dark mode optimized untuk penggunaan 24/7
 
 ## 🖼️ Screenshots
 
-<div align="center">
-
 ### 🖥️ Desktop View
-![Desktop Dashboard](https://via.placeholder.com/800x500/0a0a0a/00ff88?text=Desktop+Dashboard+View)
+![Desktop Dashboard](screenshots/desktop-view.png)
 
 ### 📱 Mobile View
-![Mobile Dashboard](https://via.placeholder.com/400x700/0a0a0a/00ff88?text=Mobile+Responsive+View)
+![Mobile Dashboard](screenshots/mobile-view.png)
 
 ### 📊 Statistics Cards
-![Statistics](https://via.placeholder.com/600x300/1a1a1a/ffffff?text=Real-time+Statistics+Cards)
-
-</div>
+![Statistics](screenshots/statistics-cards.png)
 
 ## 🚀 Quick Start
 
 ### ⚡ 1-Minute Setup
 
-```bash
+\`\`\`bash
 # Clone repository
 git clone https://github.com/yourusername/monkey-detection-frontend.git
 cd monkey-detection-frontend
@@ -110,28 +103,28 @@ cd monkey-detection-frontend
 # Open in browser
 open index.html
 # Atau double-click file index.html
-```
+\`\`\`
 
 ### 🌐 GitHub Pages Deployment
 
-1. **Fork repository** ini ke akun GitHub Anda
-2. **Enable GitHub Pages** di Settings → Pages
-3. **Select source**: Deploy from branch `main`
-4. **Access your dashboard**: `https://yourusername.github.io/monkey-detection-frontend`
+1. Fork repository ini ke akun GitHub Anda
+2. Enable GitHub Pages di Settings → Pages
+3. Select source: Deploy from branch `main`
+4. Access your dashboard: `https://yourusername.github.io/monkey-detection-frontend`
 
-**🎉 That's it! Dashboard Anda sudah live dalam 2 menit!**
+🎉 **That's it!** Dashboard Anda sudah live dalam 2 menit!
 
 ## ⚙️ Instalasi
 
 ### 📋 Prerequisites
 
-- **Web Browser** modern (Chrome 80+, Firefox 75+, Safari 13+)
-- **Backend API** YOLOv8 running di `http://localhost:5000`
-- **HTTPS connection** untuk production deployment
+- Web Browser modern (Chrome 80+, Firefox 75+, Safari 13+)
+- Backend API YOLOv8 running di `http://localhost:5000`
+- HTTPS connection untuk production deployment
 
 ### 🔧 Local Development
 
-```bash
+\`\`\`bash
 # 1. Clone repository
 git clone https://github.com/yourusername/monkey-detection-frontend.git
 cd monkey-detection-frontend
@@ -143,12 +136,13 @@ npx serve .
 
 # 3. Open browser
 open http://localhost:8000
-```
+\`\`\`
 
 ### 🌍 Production Deployment
 
 #### GitHub Pages (Recommended)
-```bash
+
+\`\`\`bash
 # 1. Push ke GitHub repository
 git add .
 git commit -m "Deploy frontend dashboard"
@@ -156,18 +150,20 @@ git push origin main
 
 # 2. Enable GitHub Pages di repository settings
 # 3. Dashboard akan tersedia di: https://yourusername.github.io/repo-name
-```
+\`\`\`
 
 #### Netlify Deployment
-```bash
+
+\`\`\`bash
 # 1. Connect GitHub repository ke Netlify
 # 2. Set build command: (kosong)
 # 3. Set publish directory: /
 # 4. Deploy otomatis setiap push ke main branch
-```
+\`\`\`
 
 #### Vercel Deployment
-```bash
+
+\`\`\`bash
 # 1. Install Vercel CLI
 npm i -g vercel
 
@@ -175,7 +171,7 @@ npm i -g vercel
 vercel --prod
 
 # 3. Follow prompts untuk configuration
-```
+\`\`\`
 
 ## 🔧 Konfigurasi
 
@@ -183,7 +179,7 @@ vercel --prod
 
 Edit `main.js` untuk mengubah endpoint backend:
 
-```javascript
+\`\`\`javascript
 // API Configuration
 const API_BASE_URL = 'http://localhost:5000/api';  // Development
 // const API_BASE_URL = 'https://your-backend.herokuapp.com/api';  // Production
@@ -195,13 +191,13 @@ const VIDEO_STREAM_URL = 'http://localhost:5000/video_feed';  // Development
 // Update intervals (milliseconds)
 const REFRESH_INTERVAL = 5000;  // 5 seconds
 const RETRY_INTERVAL = 3000;    // 3 seconds for failed requests
-```
+\`\`\`
 
 ### 🎨 Theme Customization
 
 Edit `style.css` untuk mengubah tema:
 
-```css
+\`\`\`css
 :root {
   /* Primary Colors */
   --primary-green: #00ff88;    /* Change to your brand color */
@@ -213,11 +209,11 @@ Edit `style.css` untuk mengubah tema:
   --text-secondary: #b0b0b0;   /* Secondary text */
   --text-muted: #666666;       /* Muted text */
 }
-```
+\`\`\`
 
 ### 📱 Responsive Breakpoints
 
-```css
+\`\`\`css
 /* Customize responsive behavior */
 @media (max-width: 768px) {
   .stats-grid {
@@ -230,7 +226,7 @@ Edit `style.css` untuk mengubah tema:
     max-width: 1400px;  /* Wider on large screens */
   }
 }
-```
+\`\`\`
 
 ## 📡 API Integration
 
@@ -239,13 +235,17 @@ Edit `style.css` untuk mengubah tema:
 Dashboard membutuhkan backend API dengan endpoints berikut:
 
 #### 1. Video Stream Endpoint
+
 ```http
 GET /video_feed
 Content-Type: multipart/x-mixed-replace; boundary=frame
 
 Response: MJPEG video stream
-```
 
+<p><a href="#top">⬆ Back to Top</a></p>
+
+</div>
+```
 #### 2. Detection Statistics Endpoint
 
 ```plaintext
@@ -299,6 +299,7 @@ await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
 ```plaintext
 
 ### 🔐 CORS Configuration
+
 Backend harus mengizinkan CORS untuk frontend:
 
 ```python
@@ -318,6 +319,7 @@ CORS(app, origins=['https://yourusername.github.io'])
 **Symptoms:** Video feed menampilkan loading spinner terus-menerus
 
 **Solutions:**
+
 ```bash
 
 # Check backend status
@@ -331,9 +333,11 @@ curl -H "Origin: [https://yourusername.github.io](https://yourusername.github.io
 ```plaintext
 
 #### 2. API Connection Failed
+
 **Symptoms:** Statistics dan history tidak ter-load
 
 **Solutions:**
+
 \`\`\`javascript
 // Check network connectivity
 fetch('http://localhost:5000/api/stats')
@@ -349,6 +353,7 @@ localStorage.setItem('debug', 'true');
 **Symptoms:** Error di browser console tentang mixed content
 
 **Solutions:**
+
 ```bash
 
 # Use HTTPS untuk backend atau deploy ke HTTPS
@@ -362,9 +367,11 @@ ngrok http 5000
 ```plaintext
 
 #### 4. GitHub Pages Not Updating
+
 **Symptoms:** Changes tidak muncul di GitHub Pages
 
 **Solutions:**
+
 \`\`\`bash
 # Clear browser cache
 # Ctrl + F5 (hard refresh)
@@ -380,6 +387,7 @@ ngrok http 5000
 **Symptoms:** Layout rusak di mobile device
 
 **Solutions:**
+
 ```html
 <!-- Pastikan viewport meta tag ada di index.html -->
 `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
@@ -406,25 +414,58 @@ ngrok http 5000
 \`\`\`mermaid
 flowchart TD
     A[📹 Camera Input] --> B[🤖 YOLOv8 Model]
-    B --> C[🔍 Monkey Detection]
-    C --> D[📊 Detection Results]
-    D --> E[💾 Store in Database]
-    D --> F[📡 Video Stream]
+    B --> C{🔍 Object Detection}
+    C -->|Monyet Detected| D[📊 Detection Results]
+    C -->|No Detection| E[🔄 Continue Processing]
     
-    E --> G[🌐 REST API]
-    F --> H[📺 Live Feed]
-    G --> I[🖥️ Web Dashboard]
-    H --> I
+    D --> F[💾 Store in Database]
+    D --> G[📡 Video Stream with Annotations]
     
-    I --> J[📈 Update Statistics]
-    I --> K[📋 Update History Table]
-    I --> L[🔔 Show Notifications]
+    F --> H[🌐 REST API]
+    G --> I[📺 Live Video Feed]
+    H --> J[🖥️ Web Dashboard]
+    I --> J
+    
+    J --> K[📊 Update Statistics Cards]
+    J --> L[📋 Update History Table]
+    J --> M[🔔 Trigger Notifications]
+    
+    K --> N[🎨 Render Animations]
+    L --> O[🔍 Apply Filters/Search]
+    M --> P[📣 Show Toast/Sound Alert]
+    
+    N --> Q[🔄 Refresh UI]
+    O --> Q
+    P --> Q
+    
+    Q --> R{User Interaction?}
+    R -->|Filter History| S[🔍 Update Table View]
+    R -->|Export Data| T[📥 Download CSV]
+    R -->|View Fullscreen| U[🖼️ Toggle Fullscreen Mode]
+    R -->|No Action| V[⏳ Wait for Next Update]
+    
+    S --> V
+    T --> V
+    U --> V
+    
+    V --> W{API Refresh Interval?}
+    W -->|Yes| X[📡 Fetch New Data]
+    W -->|No| Y[⏳ Wait 5s]
+    
+    X --> Z{API Success?}
+    Z -->|Yes| J
+    Z -->|No| AA[⚠️ Show Error Message]
+    AA --> AB[🔄 Retry After 3s]
+    AB --> X
+    
+    E --> B
     
     style A fill:#e1f5fe
     style B fill:#e8f5e8
     style C fill:#fff3e0
-    style I fill:#fce4ec
-    style J fill:#f3e5f5
+    style J fill:#fce4ec
+    style Q fill:#f3e5f5
+    style R fill:#e0f2f1
 ```
 
 ## UI Components
@@ -433,23 +474,24 @@ flowchart TD
 
 ```css
 /* Primary Colors */
---primary-green: `#00ff88`    /* Success, highlights */
---dark-bg: `#0a0a0a`         /* Main background */
---card-bg: `#1a1a1a`         /* Card backgrounds */
+--primary-green: `#00ff88`;    /* Success, highlights */
+--dark-bg: `#0a0a0a`;         /* Main background */
+--card-bg: `#1a1a1a`;         /* Card backgrounds */
 
 /* Text Colors */
---text-primary: `#ffffff`     /* Main text */
---text-secondary: `#b0b0b0`   /* Secondary text */
---text-muted: `#666666`       /* Muted text */
+--text-primary: `#ffffff`;     /* Main text */
+--text-secondary: `#b0b0b0`;   /* Secondary text */
+--text-muted: `#666666`;       /* Muted text */
 
 /* Status Colors */
---status-online: `#00ff88`    /* Online status */
---status-offline: `#ff4444`   /* Offline status */
---status-warning: `#ffaa00`   /* Warning status */
+--status-online: `#00ff88`;    /* Online status */
+--status-offline: `#ff4444`;   /* Offline status */
+--status-warning: `#ffaa00`;   /* Warning status */
 
 ```plaintext
 
 ### Typography
+
 \`\`\`css
 /* Font Family */
 font-family: 'Poppins', sans-serif;
@@ -474,6 +516,7 @@ font-family: 'Poppins', sans-serif;
 ## 🚀 Advanced Features
 
 ### 1. Real-time Notifications
+
 \`\`\`javascript
 // Implementasi WebSocket untuk real-time updates
 const ws = new WebSocket('ws://localhost:5000/ws');
@@ -499,6 +542,7 @@ downloadCSV(csv, 'monkey_detections.csv');
 ```plaintext
 
 ### 3. Custom Alerts
+
 \`\`\`javascript
 // Set threshold untuk alert
 const ALERT_THRESHOLD = 5; // Alert jika > 5 monyet
@@ -522,6 +566,7 @@ detectionAccuracy: 0
 ## 📈 Performance Optimization
 
 ### Frontend Optimization
+
 \`\`\`javascript
 // Debounce API calls
 const debouncedRefresh = debounce(refreshData, 1000);
@@ -552,6 +597,7 @@ historyData = historyData.slice(-MAX_HISTORY_ENTRIES);
 ## 🔒 Security Considerations
 
 ### Frontend Security
+
 - Sanitize all user inputs
 - Validate API responses
 - Use HTTPS untuk production
@@ -559,6 +605,7 @@ historyData = historyData.slice(-MAX_HISTORY_ENTRIES);
 - Regular dependency updates
 
 ### API Security
+
 \`\`\`javascript
 // Validate API responses
 function validateApiResponse(response) {
@@ -573,36 +620,39 @@ function validateApiResponse(response) {
 
 Kontribusi sangat diterima! Silakan:
 
-1. **Fork Repository**
+### Fork Repository
+
 ```bash
-git fork [https://github.com/original/monkey-detection-frontend.git](https://github.com/original/monkey-detection-frontend.git)
-```
-2. **Create Feature Branch**
-```bash
+git fork [https://github.com/yourusername/monkey-detection-frontend.git](https://github.com/yourusername/monkey-detection-frontend.git)
+
+```plaintext
+
+### Create Feature Branch
+
+\`\`\`bash
 git checkout -b feature/amazing-feature
 ```
-3. **Make Changes**
 
-1. Follow existing code style
-2. Test di multiple browsers
-3. Update dokumentasi jika perlu
+### Make Changes
+
+- Follow existing code style
+- Test di multiple browsers
+- Update dokumentasi jika perlu
 
 
+### Commit Changes
 
-4. **Commit Changes**
 ```bash
 git commit -m 'Add amazing feature'
-```
-5. **Push and Create PR**
-```bash
+
+```plaintext
+
+### Push and Create PR
+
+\`\`\`bash
 git push origin feature/amazing-feature
-
 # Create Pull Request di GitHub
-
 ```
-
-
-
 
 ### Development Guidelines
 
@@ -617,6 +667,7 @@ function updateStatistics() {}                      // camelCase for functions
 ```plaintext
 
 #### Testing Checklist
+
 - [ ] Test di Chrome, Firefox, Safari
 - [ ] Test responsive design (mobile, tablet, desktop)
 - [ ] Test dengan backend offline
@@ -626,7 +677,7 @@ function updateStatistics() {}                      // camelCase for functions
 
 ## 📝 License
 
-Project ini menggunakan MIT License. Lihat file `LICENSE` untuk detail lengkap.
+Project ini menggunakan MIT License. Lihat file [LICENSE](LICENSE) untuk detail lengkap.
 
 ```
 
@@ -648,28 +699,31 @@ copies or substantial portions of the Software.
 
 ## 🙏 Acknowledgments
 
-- **YOLOv8 (Ultralytics)** untuk computer vision model
-- **Google Fonts** untuk typography (Poppins)
-- **GitHub Pages** untuk free hosting
-- **Flask Community** untuk backend framework
-- **OpenCV Community** untuk computer vision support
+- [YOLOv8 (Ultralytics)](https://github.com/ultralytics/ultralytics) untuk computer vision model
+- [Google Fonts](https://fonts.google.com/) untuk typography (Poppins)
+- [GitHub Pages](https://pages.github.com/) untuk free hosting
+- [Flask Community](https://flask.palletsprojects.com/) untuk backend framework
+- [OpenCV Community](https://opencv.org/) untuk computer vision support
 
 ## 📞 Support & Contact
 
 ### Get Help
+
 - **Issues**: [GitHub Issues](https://github.com/yourusername/monkey-detection-frontend/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/monkey-detection-frontend/discussions)
 - **Email**: your-email@example.com
 
 ### Useful Resources
+
 - [YOLOv8 Documentation](https://docs.ultralytics.com/)
 - [Flask Documentation](https://flask.palletsprojects.com/)
-- [GitHub Pages Guide](https://pages.github.com/)
+- [GitHub Pages Guide](https://docs.github.com/en/pages)
 - [Web Development MDN](https://developer.mozilla.org/)
 
 ### Community
+
 - Join our Discord: [Invite Link]
-- Follow updates: [@YourTwitter](https://twitter.com/yourhandle)
+- Follow updates: [@YourTwitter](https://twitter.com/YourTwitter)
 - Star the repo if helpful! ⭐
 
 ## 🔗 Related Projects
@@ -677,18 +731,18 @@ copies or substantial portions of the Software.
 - [Backend YOLOv8 API](https://github.com/yourusername/monkey-detection-backend)
 - [Mobile App Version](https://github.com/yourusername/monkey-detection-mobile)
 - [Desktop Application](https://github.com/yourusername/monkey-detection-desktop)
-
+```
 ---
 
 <div align="center">
+  
+## 🐒 Protecting Wildlife with Technology 🌿
 
-**🐒 Protecting Wildlife with Technology 🌿**
 
 **⭐ Star this repository if you found it helpful!**
 
 Made with ❤️ for wildlife conservation
 
-<p><a href="#top">⬆ Back to Top</a></p>
+<p><a href="#top">⬆ Back on Top</a></p>
 
 </div>
-```
