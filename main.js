@@ -1,6 +1,6 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "https://3641666f3346.ngrok-free.app -> http://localhost:5000"; // Update to your ngrok URL
+    this.baseURL = "http://localhost:5000"; // Use ngrok HTTPS URL if deploying
     this.videoFeedURL = `${this.baseURL}/video_feed`;
     this.historyAPI = `${this.baseURL}/api/history`;
 
@@ -148,7 +148,7 @@ class MonkeyDetectionMonitor {
           <tr>
             <td>${this.formatTime(record.time)}</td>
             <td>${record.count}</td>
-            <td>${record.location || "Camera 1"}</td>
+            <td>${record.location || "Webcam"}</td>
           </tr>
         `
       )
