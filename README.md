@@ -127,25 +127,27 @@ npx serve .
 open http://localhost:8000
 ```
 
+---
+<div align="center">
 ### 🌍 Production Deployment
-
 #### GitHub Pages (Recommended)
+</div>
 
-# 1. Push ke GitHub repository
+### 1. Push ke GitHub repository
 ```bash
 git add .
 git commit -m "Deploy frontend dashboard"
 git push origin main
 ```
-# 2. Enable GitHub Pages di repository settings
-# 3. Dashboard akan tersedia di: https://yourusername.github.io/repo-name
+### 2. Enable GitHub Pages di repository settings
+### 3. Dashboard akan tersedia di: https://yourusername.github.io/repo-name
 
 #### Netlify Deployment
 
-# 1. Connect GitHub repository ke Netlify
-# 2. Set build command: (kosong)
-# 3. Set publish directory: /
-# 4. Deploy otomatis setiap push ke main branch
+### 1. Connect GitHub repository ke Netlify
+### 2. Set build command: (kosong)
+### 3. Set publish directory: /
+### 4. Deploy otomatis setiap push ke main branch
 
 #### Vercel Deployment
 
