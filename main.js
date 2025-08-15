@@ -1,6 +1,6 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "http://localhost:5000"; // Use ngrok HTTPS URL if deploying
+    this.baseURL = "https://96681deb328d.ngrok-free.app -> http://localhost:5000"; // Use ngrok HTTPS URL if deploying
     this.videoFeedURL = `${this.baseURL}/video_feed`;
     this.historyAPI = `${this.baseURL}/api/history`;
 
