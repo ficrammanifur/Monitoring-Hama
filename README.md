@@ -131,34 +131,29 @@ open http://localhost:8000
 
 #### GitHub Pages (Recommended)
 
-```bash
 # 1. Push ke GitHub repository
+```bash
 git add .
 git commit -m "Deploy frontend dashboard"
 git push origin main
-
+```
 # 2. Enable GitHub Pages di repository settings
 # 3. Dashboard akan tersedia di: https://yourusername.github.io/repo-name
-```
 
 #### Netlify Deployment
 
-```bash
 # 1. Connect GitHub repository ke Netlify
 # 2. Set build command: (kosong)
 # 3. Set publish directory: /
 # 4. Deploy otomatis setiap push ke main branch
-```
 
 #### Vercel Deployment
 
 ```bash
 # 1. Install Vercel CLI
 npm i -g vercel
-
 # 2. Deploy
 vercel --prod
-
 # 3. Follow prompts untuk configuration
 ```
 
@@ -235,6 +230,7 @@ Response: MJPEG video stream
 
 </div>
 ```
+
 #### 2. Detection Statistics Endpoint
 
 ```plaintext
@@ -284,8 +280,7 @@ await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
 }
 }
 }
-
-```plaintext
+```
 
 ### 🔐 CORS Configuration
 
@@ -310,16 +305,11 @@ CORS(app, origins=['https://yourusername.github.io'])
 **Solutions:**
 
 ```bash
-
 # Check backend status
-
 curl [http://localhost:5000/video_feed](http://localhost:5000/video_feed)
-
 # Check CORS headers
-
 curl -H "Origin: [https://yourusername.github.io](https://yourusername.github.io)" -H "Access-Control-Request-Method: GET" -H "Access-Control-Request-Headers: X-Requested-With" -X OPTIONS [http://localhost:5000/video_feed](http://localhost:5000/video_feed)
-
-```plaintext
+```
 
 #### 2. API Connection Failed
 
@@ -327,7 +317,7 @@ curl -H "Origin: [https://yourusername.github.io](https://yourusername.github.io
 
 **Solutions:**
 
-\`\`\`javascript
+```javascript
 // Check network connectivity
 fetch('http://localhost:5000/api/stats')
   .then(response => console.log('API Status:', response.status))
@@ -344,16 +334,11 @@ localStorage.setItem('debug', 'true');
 **Solutions:**
 
 ```bash
-
 # Use HTTPS untuk backend atau deploy ke HTTPS
-
 # Atau gunakan ngrok untuk testing:
-
 ngrok http 5000
-
 # Kemudian update API_BASE_URL ke [https://xxx.ngrok.io](https://xxx.ngrok.io)
-
-```plaintext
+```
 
 #### 4. GitHub Pages Not Updating
 
@@ -361,15 +346,12 @@ ngrok http 5000
 
 **Solutions:**
 
-\`\`\`bash
 # Clear browser cache
 # Ctrl + F5 (hard refresh)
-
 # Check GitHub Actions
 # Repository -> Actions tab -> Check deployment status
-
 # Wait 5-10 minutes untuk propagation
-```
+
 
 #### 5. Mobile Display Issues
 
