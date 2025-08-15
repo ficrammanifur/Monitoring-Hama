@@ -1,7 +1,7 @@
 class MonkeyDetectionMonitor {
   constructor() {
     // Centralized base URL configuration (update this for new ngrok or production URL)
-    this.baseURL = "https://866dea127727.ngrok-free.app -> http://localhost:5000"; // Default ngrok HTTPS URL
+    this.baseURL = "https://ficrammanifur.github.io/Monitoring-Hama/?baseURL=https://866dea127727.ngrok-free.app"; // Default ngrok HTTPS URL
 
     // Dynamically set baseURL from a query parameter (if provided)
     this.initializeBaseURL();
