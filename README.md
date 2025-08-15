@@ -313,12 +313,11 @@ ngrok http 5000
 **Symptoms:** Changes tidak muncul di GitHub Pages
 
 **Solutions:**
-
-# Clear browser cache
-# Ctrl + F5 (hard refresh)
-# Check GitHub Actions
-# Repository -> Actions tab -> Check deployment status
-# Wait 5-10 minutes untuk propagation
+- Clear browser cache
+- Ctrl + F5 (hard refresh)
+- Check GitHub Actions
+- Repository -> Actions tab -> Check deployment status
+- Wait 5-10 minutes untuk propagation
 
 
 #### 5. Mobile Display Issues
