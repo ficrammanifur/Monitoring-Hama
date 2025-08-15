@@ -1,6 +1,6 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "http://localhost:5000"
+    this.baseURL = "https://3641666f3346.ngrok-free.app -> http://localhost:5000"
     this.videoFeedURL = `${this.baseURL}/video_feed`
     this.historyAPI = `${this.baseURL}/api/history`
 
