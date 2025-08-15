@@ -1,13 +1,14 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    // Replace with your ngrok HTTPS URL
-    this.baseURL = "https://a6a60ff01741.ngrok-free.app -> http://localhost:5000"; // Update this after running ngrok
+    this.baseURL = "https://46e78cd750d8.ngrok-free.app"; // Ngrok HTTPS URL
     this.videoFeedURL = `${this.baseURL}/video_feed`;
     this.historyAPI = `${this.baseURL}/api/history`;
 
     this.lastDetectionCount = 0;
     this.refreshInterval = null;
     this.isConnected = false;
+    this.videoRetryAttempts = 0;
+    this.maxVideoRetries = 3;
 
     this.initializeElements();
     this.setupEventListeners();
@@ -34,6 +35,7 @@ class MonkeyDetectionMonitor {
       this.videoFeed.classList.add("loaded");
       this.videoOverlay.classList.add("hidden");
       this.updateSystemStatus(true);
+      this.videoRetryAttempts = 0; // Reset retries on success
     });
 
     this.videoFeed.addEventListener("error", () => {
@@ -44,6 +46,7 @@ class MonkeyDetectionMonitor {
         <p>Camera connection failed</p>
       `;
       this.updateSystemStatus(false);
+      this.retryVideoFeed();
     });
 
     this.refreshBtn.addEventListener("click", () => {
@@ -78,6 +81,19 @@ class MonkeyDetectionMonitor {
 
   initializeVideoFeed() {
     this.videoFeed.src = `${this.videoFeedURL}?t=${Date.now()}`;
+  }
+
+  retryVideoFeed() {
+    if (this.videoRetryAttempts < this.maxVideoRetries) {
+      this.videoRetryAttempts++;
+      console.log(`Retrying video feed, attempt ${this.videoRetryAttempts}/${this.maxVideoRetries}`);
+      setTimeout(() => {
+        this.initializeVideoFeed();
+      }, 2000);
+    } else {
+      console.error("Max video feed retries reached");
+      this.showToast("Failed to connect to webcam feed after retries", "error");
+    }
   }
 
   async loadHistoryData() {
