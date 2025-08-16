@@ -1,23 +1,23 @@
-// ===== KONFIGURASI API =====
-// Ganti URL ini dengan ngrok URL Anda (TANPA trailing slash)
-const API_BASE_URL = "https://0e4f14596aef.ngrok-free.app"; // Update with your active ngrok URL
-// Contoh: const API_BASE_URL = "https://new-url.ngrok-free.app";
-// PENTING: Pastikan tidak ada "/" di akhir URL
-
 class MonkeyDetectionMonitor {
   constructor() {
-    // Centralized base URL, overridden by query parameter if provided
-    this.baseURL = API_BASE_URL;
+    // Default backend URL (update with your active backend URL, e.g., ngrok or Render)
+    this.baseURL = "https://f7af5a0baecd.ngrok-free.app"; // Replace with your backend URL
     this.initializeBaseURL();
 
-    // Define endpoints derived from baseURL
-    this.endpoints = this.getEndpoints();
+    // Define endpoints
+    this.endpoints = {
+      videoFeed: `${this.baseURL}/video_feed`,
+      history: `${this.baseURL}/api/history`,
+      status: `${this.baseURL}/api/status`,
+      clearHistory: `${this.baseURL}/api/clear_history`
+    };
 
     this.lastDetectionCount = 0;
     this.refreshInterval = null;
     this.isConnected = false;
     this.videoRetryAttempts = 0;
-    this.maxVideoRetries = 3;
+    this.maxVideoRetries = 5;
+    this.retryDelay = 3000;
 
     this.initializeElements();
     this.setupEventListeners();
@@ -25,22 +25,13 @@ class MonkeyDetectionMonitor {
   }
 
   initializeBaseURL() {
-    // Check for baseURL in query parameter (e.g., ?baseURL=https://new-url.ngrok-free.app)
+    // Allow override via query parameter (e.g., ?baseURL=https://new-url.ngrok-free.app)
     const urlParams = new URLSearchParams(window.location.search);
     const customBaseURL = urlParams.get('baseURL');
     if (customBaseURL) {
-      this.baseURL = customBaseURL;
+      this.baseURL = customBaseURL.replace(/\/$/, ''); // Remove trailing slash
       console.log(`Base URL set from query parameter: ${this.baseURL}`);
     }
-  }
-
-  getEndpoints() {
-    return {
-      videoFeed: `${this.baseURL}/video_feed`,
-      history: `${this.baseURL}/api/history`,
-      status: `${this.baseURL}/api/status`,
-      clearHistory: `${this.baseURL}/api/clear_history`
-    };
   }
 
   initializeElements() {
@@ -72,7 +63,7 @@ class MonkeyDetectionMonitor {
       this.videoOverlay.classList.remove("hidden");
       this.videoOverlay.innerHTML = `
         <div class="loading-spinner"></div>
-        <p>Camera connection failed</p>
+        <p>Camera connection failed. Retrying...</p>
       `;
       this.updateSystemStatus(false);
       this.retryVideoFeed();
@@ -93,8 +84,10 @@ class MonkeyDetectionMonitor {
 
   startMonitoring() {
     this.initializeVideoFeed();
+    this.loadStatusData();
     this.loadHistoryData();
     this.refreshInterval = setInterval(() => {
+      this.loadStatusData();
       this.loadHistoryData();
     }, 5000);
     console.log("Monitoring started");
@@ -119,9 +112,12 @@ class MonkeyDetectionMonitor {
       console.log(`Retrying video feed, attempt ${this.videoRetryAttempts}/${this.maxVideoRetries}`);
       setTimeout(() => {
         this.initializeVideoFeed();
-      }, 2000);
+      }, this.retryDelay);
     } else {
       console.error("Max video feed retries reached");
+      this.videoOverlay.innerHTML = `
+        <p style="color: #ef4444;">Failed to connect to webcam feed. Please ensure the backend is running.</p>
+      `;
       this.showNotification("❌ Gagal terhubung ke feed webcam setelah beberapa percobaan. Pastikan backend berjalan.", "error");
     }
   }
@@ -132,30 +128,36 @@ class MonkeyDetectionMonitor {
         method: method,
         headers: {
           "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true" // Skip ngrok browser warning
+          "ngrok-skip-browser-warning": "true"
         }
       };
 
       console.log(`Making API call: ${method} ${this.baseURL}${endpoint}`);
       const response = await fetch(`${this.baseURL}${endpoint}`, config);
 
-      // Check if response is HTML (error page)
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("text/html")) {
-        const errorText = await response.text();
-        throw new Error(`Server returned HTML instead of JSON: ${errorText.slice(0, 100)}... Check if API is running and ngrok URL is correct.`);
-      }
-
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
       }
 
       return await response.json();
     } catch (error) {
       console.error(`API Error (${method} ${endpoint}):`, error);
-      this.showNotification(`❌ Gagal terhubung ke server: ${error.message}. Pastikan backend dan ngrok berjalan.`, "error");
+      this.showNotification(`❌ Gagal terhubung ke server: ${error.message}. Pastikan backend berjalan.`, "error");
       throw error;
+    }
+  }
+
+  async loadStatusData() {
+    try {
+      const data = await this.apiCall("/api/status");
+      this.updateSystemStatus(data.system_status === "Active");
+      this.monkeyCount.textContent = data.current_detections;
+      this.lastDetection.textContent = data.last_detection === "Belum ada deteksi" ? "Never" : this.formatTime(data.last_detection);
+      this.systemStatusText.textContent = data.system_status;
+    } catch (error) {
+      this.updateSystemStatus(false);
+      this.systemStatusText.textContent = "Error";
     }
   }
 
@@ -181,7 +183,7 @@ class MonkeyDetectionMonitor {
 
   updateDashboard(data) {
     const history = Array.isArray(data.history) ? data.history : [];
-    const totalDetections = history.reduce((sum, record) => sum + record.count, 0);
+    const totalDetections = history.reduce((sum, record) => sum + (record.count || 0), 0);
     this.monkeyCount.textContent = totalDetections;
 
     if (history.length > 0) {
@@ -263,6 +265,7 @@ class MonkeyDetectionMonitor {
 
   refreshData() {
     this.loadHistoryData();
+    this.loadStatusData();
   }
 
   formatTime(timestamp) {
@@ -291,33 +294,6 @@ class MonkeyDetectionMonitor {
   showNotification(message, type = "info") {
     const notification = document.createElement("div");
     notification.className = `toast toast-${type}`;
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 12px 16px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 500;
-      z-index: 10000;
-      max-width: 300px;
-      word-wrap: break-word;
-    `;
-
-    switch (type) {
-      case "success":
-        notification.style.backgroundColor = "#22c55e";
-        break;
-      case "error":
-        notification.style.backgroundColor = "#ef4444";
-        break;
-      case "warning":
-        notification.style.backgroundColor = "#f59e0b";
-        break;
-      default:
-        notification.style.backgroundColor = "#3b82f6";
-    }
-
     notification.textContent = message;
     this.toastContainer.appendChild(notification);
 
