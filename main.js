@@ -1,12 +1,11 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "https://7a5475a4a6ea.ngrok-free.app"; // Ganti dengan URL ngrok yang aktif
+    this.baseURL = "http://localhost:5000"; // Default lokal
     this.initializeBaseURL();
 
-    // Build endpoints dengan benar - hindari duplikasi URL
     this.endpoints = {
       videoFeed: "/video_feed",
-      history: "/api/history", 
+      history: "/api/history",
       status: "/api/status",
       clearHistory: "/api/clear_history"
     };
@@ -27,75 +26,54 @@ class MonkeyDetectionMonitor {
     const urlParams = new URLSearchParams(window.location.search);
     const customBaseURL = urlParams.get('baseURL');
     if (customBaseURL) {
-      this.baseURL = customBaseURL.replace(/\/$/, ''); // Hapus trailing slash
+      this.baseURL = customBaseURL.replace(/\/$/, '');
       console.log(`Base URL set from query parameter: ${this.baseURL}`);
+    }
+    // Validasi baseURL
+    try {
+      new URL(this.baseURL);
+    } catch (e) {
+      console.error(`Invalid baseURL: ${this.baseURL}, reverting to default`);
+      this.baseURL = "http://localhost:5000";
     }
   }
 
   initializeElements() {
-    // Video elements
     this.videoCanvas = document.getElementById("videoCanvas");
     this.videoOverlay = document.getElementById("videoOverlay");
-    
-    // Status elements
     this.systemStatus = document.getElementById("systemStatus");
     this.systemStatusText = document.getElementById("systemStatusText");
-    this.systemStatusDot = document.getElementById("systemStatusDot");
-    this.connectionStatus = document.getElementById("connectionStatus");
-    this.statusIndicator = document.getElementById("statusIndicator");
-    
-    // Data display elements
     this.monkeyCount = document.getElementById("monkeyCount");
     this.lastDetection = document.getElementById("lastDetection");
-    this.totalDetectionsToday = document.getElementById("totalDetectionsToday");
-    this.totalDetections = document.getElementById("totalDetections");
-    this.avgPerDay = document.getElementById("avgPerDay");
-    this.historyCount = document.getElementById("historyCount");
     this.historyTableBody = document.getElementById("historyTableBody");
-    
-    // Control elements
     this.refreshBtn = document.getElementById("refreshBtn");
-    this.clearHistoryBtn = document.getElementById("clearHistoryBtn");
-    
-    // UI elements
     this.toastContainer = document.getElementById("toastContainer");
-    this.loadingOverlay = document.getElementById("loadingOverlay");
 
-    // Validate critical elements
-    const criticalElements = [
-      { name: 'videoCanvas', element: this.videoCanvas },
-      { name: 'videoOverlay', element: this.videoOverlay },
-      { name: 'historyTableBody', element: this.historyTableBody }
-    ];
+    // Null checks
+    if (!this.videoCanvas) console.warn("videoCanvas element not found in DOM");
+    if (!this.videoOverlay) console.warn("videoOverlay element not found in DOM");
+    if (!this.systemStatus) console.warn("systemStatus element not found in DOM");
+    if (!this.systemStatusText) console.warn("systemStatusText element not found in DOM");
+    if (!this.monkeyCount) console.warn("monkeyCount element not found in DOM");
+    if (!this.lastDetection) console.warn("lastDetection element not found in DOM");
+    if (!this.historyTableBody) console.warn("historyTableBody element not found in DOM");
+    if (!this.refreshBtn) console.warn("refreshBtn element not found in DOM");
+    if (!this.toastContainer) console.warn("toastContainer element not found in DOM");
 
-    criticalElements.forEach(({ name, element }) => {
-      if (!element) {
-        console.error(`Critical element '${name}' not found in DOM`);
-      }
-    });
-
-    // Setup canvas context if available
-    if (this.videoCanvas) {
-      this.ctx = this.videoCanvas.getContext('2d');
-    }
+    this.statusDot = this.systemStatus ? this.systemStatus.querySelector(".status-dot") : null;
+    this.statusText = this.systemStatus ? this.systemStatus.querySelector(".status-text") : null;
+    this.ctx = this.videoCanvas ? this.videoCanvas.getContext('2d') : null;
   }
 
   setupEventListeners() {
-    // Refresh button
     if (this.refreshBtn) {
       this.refreshBtn.addEventListener("click", () => {
         this.refreshData();
       });
+    } else {
+      console.warn("Cannot set up refreshBtn event listener: element is null");
     }
 
-    // Clear history button
-    if (this.clearHistoryBtn) {
-      this.clearHistoryBtn.addEventListener("click", () => {
-        this.clearHistory();
-      });
-    }
-
-    // Page visibility changes
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         this.stopMonitoring();
@@ -104,29 +82,23 @@ class MonkeyDetectionMonitor {
       }
     });
 
-    // Make monitor accessible globally for debugging
     window.monitor = this;
   }
 
   startMonitoring() {
-    console.log("Starting monitoring...");
-    this.updateConnectionStatus("connecting", "Menghubungkan ke server...");
-    
-    this.initializeVideoFeed();
+    if (this.videoCanvas && this.ctx) {
+      this.initializeVideoFeed();
+    } else {
+      console.error("Cannot start video feed: videoCanvas or context is missing");
+      this.showNotification("❌ Cannot display video: Canvas element is missing", "error");
+    }
     this.loadStatusData();
     this.loadHistoryData();
-    
-    // Set up periodic refresh
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-    }
-    
     this.refreshInterval = setInterval(() => {
       this.loadStatusData();
       this.loadHistoryData();
     }, 5000);
-    
-    console.log("Monitoring started");
+    console.log("Monitoring dimulai");
   }
 
   stopMonitoring() {
@@ -134,16 +106,22 @@ class MonkeyDetectionMonitor {
       clearInterval(this.refreshInterval);
       this.refreshInterval = null;
     }
-    console.log("Monitoring stopped");
+    console.log("Monitoring dihentikan");
   }
 
   initializeVideoFeed() {
     const videoUrl = `${this.baseURL}${this.endpoints.videoFeed}?t=${Date.now()}`;
-    console.log(`Attempting to load video feed from: ${videoUrl}`);
+    console.log(`Mencoba memuat feed video dari: ${videoUrl}`);
     this.loadMjpegStream(videoUrl);
   }
 
   async loadMjpegStream(url) {
+    if (!this.videoCanvas || !this.ctx) {
+      console.error("Cannot load MJPEG stream: Canvas or context is missing");
+      this.retryVideoFeed();
+      return;
+    }
+
     try {
       const response = await fetch(url, {
         method: 'GET',
@@ -160,22 +138,25 @@ class MonkeyDetectionMonitor {
       let buffer = new Uint8Array();
       const boundary = '--frame';
 
-      // Hide overlay if successful
       if (this.videoOverlay) {
         this.videoOverlay.classList.add("hidden");
       }
 
-      this.updateConnectionStatus("active", "Terhubung ke server");
-
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log("MJPEG stream ended");
+          break;
+        }
 
         buffer = this.appendBuffer(buffer, value);
 
         let boundaryIndex;
         while ((boundaryIndex = this.findBoundary(buffer, boundary)) !== -1) {
-          const frameStart = boundaryIndex + boundary.length + 4;
+          const headerEnd = buffer.indexOf(new Uint8Array([0x0D, 0x0A, 0x0D, 0x0A]), boundaryIndex);
+          if (headerEnd === -1) break;
+
+          const frameStart = headerEnd + 4;
           const frameEnd = this.findNextBoundary(buffer, frameStart, boundary);
 
           if (frameEnd === -1) break;
@@ -186,9 +167,11 @@ class MonkeyDetectionMonitor {
 
           const img = new Image();
           img.onload = () => {
-            if (this.ctx && this.videoCanvas) {
-              this.ctx.drawImage(img, 0, 0, this.videoCanvas.width, this.videoCanvas.height);
-            }
+            this.ctx.drawImage(img, 0, 0, this.videoCanvas.width, this.videoCanvas.height);
+            URL.revokeObjectURL(imgUrl);
+          };
+          img.onerror = () => {
+            console.error("Failed to load image frame");
             URL.revokeObjectURL(imgUrl);
           };
           img.src = imgUrl;
@@ -197,42 +180,18 @@ class MonkeyDetectionMonitor {
         }
       }
     } catch (error) {
-      console.error("Error loading MJPEG stream:", error);
-      this.handleVideoError(error);
+      console.error("Error memuat MJPEG stream:", error);
+      if (this.videoOverlay) {
+        this.videoOverlay.innerHTML = `
+          <div class="loading-spinner"></div>
+          <p>Koneksi kamera gagal: ${error.message}. <button onclick="window.monitor.retryVideoFeed()">Coba Lagi</button></p>
+        `;
+        this.videoOverlay.classList.remove("hidden");
+      }
+      this.retryVideoFeed();
     }
   }
 
-  handleVideoError(error) {
-    if (this.videoOverlay) {
-      this.videoOverlay.classList.remove("hidden");
-      this.videoOverlay.innerHTML = `
-        <div class="loading-spinner"></div>
-        <p>Koneksi kamera gagal: ${error.message}</p>
-        <button onclick="window.monitor.retryVideoFeed()">Coba Lagi</button>
-      `;
-    }
-    
-    this.updateConnectionStatus("error", "Gagal terhubung ke kamera");
-    this.retryVideoFeed();
-  }
-
-  retryVideoFeed() {
-    if (this.videoRetryAttempts < this.maxVideoRetries) {
-      this.videoRetryAttempts++;
-      console.log(`Retrying video feed, attempt ${this.videoRetryAttempts}/${this.maxVideoRetries}`);
-      
-      setTimeout(() => {
-        this.initializeVideoFeed();
-      }, this.retryDelay);
-    } else {
-      console.error("Maximum video retry attempts reached");
-      this.updateConnectionStatus("error", "Gagal terhubung setelah beberapa percobaan");
-      this.showNotification("❌ Gagal terhubung ke feed webcam. Pastikan server backend berjalan.", "error");
-      this.videoRetryAttempts = 0;
-    }
-  }
-
-  // Helper functions untuk MJPEG parsing
   appendBuffer(buffer1, buffer2) {
     const tmp = new Uint8Array(buffer1.length + buffer2.length);
     tmp.set(buffer1, 0);
@@ -270,8 +229,31 @@ class MonkeyDetectionMonitor {
     return -1;
   }
 
+  retryVideoFeed() {
+    if (this.videoRetryAttempts < this.maxVideoRetries) {
+      this.videoRetryAttempts++;
+      console.log(`Mencoba ulang feed video, percobaan ${this.videoRetryAttempts}/${this.maxVideoRetries}`);
+      setTimeout(() => {
+        this.initializeVideoFeed();
+      }, this.retryDelay);
+    } else {
+      console.error("Batas maksimum percobaan feed video tercapai");
+      if (this.videoOverlay) {
+        this.videoOverlay.innerHTML = `
+          <p style="color: #ef4444;">Gagal terhubung ke feed webcam. Pastikan server backend berjalan dan URL benar.</p>
+          <button onclick="window.monitor.retryVideoFeed()">Coba Lagi</button>
+        `;
+        this.videoOverlay.classList.remove("hidden");
+      }
+      this.showNotification("❌ Gagal terhubung ke feed webcam. Pastikan server backend berjalan dan URL aktif.", "error");
+      this.videoRetryAttempts = 0;
+    }
+  }
+
   async apiCall(endpoint, method = "GET") {
     try {
+      const url = `${this.baseURL}${endpoint}`;
+      console.log(`Membuat panggilan API: ${method} ${url}`);
       const config = {
         method: method,
         headers: {
@@ -280,11 +262,7 @@ class MonkeyDetectionMonitor {
         }
       };
 
-      // Build URL dengan benar - hindari duplikasi
-      const fullUrl = `${this.baseURL}${endpoint}`;
-      console.log(`Making API call: ${method} ${fullUrl}`);
-      
-      const response = await fetch(fullUrl, config);
+      const response = await fetch(url, config);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -292,18 +270,11 @@ class MonkeyDetectionMonitor {
       }
 
       const data = await response.json();
-      console.log(`Response data for ${endpoint}:`, data);
+      console.log(`Data respons untuk ${endpoint}:`, data);
       return data;
     } catch (error) {
-      console.error(`API Error (${method} ${endpoint}):`, error);
-      
-      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-        this.updateConnectionStatus("error", "Server tidak dapat dijangkau");
-        this.showNotification(`❌ Gagal terhubung ke server. Pastikan backend aktif dan URL benar.`, "error");
-      } else {
-        this.showNotification(`❌ Error API: ${error.message}`, "error");
-      }
-      
+      console.error(`Error API (${method} ${endpoint}):`, error);
+      this.showNotification(`❌ Gagal terhubung ke server: ${error.message}. Pastikan server backend aktif.`, "error");
       throw error;
     }
   }
@@ -312,252 +283,109 @@ class MonkeyDetectionMonitor {
     try {
       const data = await this.apiCall(this.endpoints.status);
       this.updateDashboard(data);
-      this.updateConnectionStatus("active", "Terhubung ke server");
     } catch (error) {
-      console.error("Error loading status data:", error);
-      this.handleAPIError("Status", error);
+      this.handleAPIError(error, "Status");
     }
   }
 
   async loadHistoryData() {
     try {
       const data = await this.apiCall(this.endpoints.history);
-      this.updateHistoryTable(data.history || []);
-      this.updateHistoryCount(data.total_count || 0);
+      this.updateHistoryTable(data);
     } catch (error) {
-      console.error("Error loading history data:", error);
-      this.handleAPIError("Riwayat", error);
-    }
-  }
-
-  async clearHistory() {
-    if (!confirm("Yakin ingin menghapus semua riwayat deteksi?")) {
-      return;
-    }
-
-    try {
-      this.showLoadingState();
-      await this.apiCall(this.endpoints.clearHistory, "POST");
-      this.showNotification("✅ Riwayat berhasil dihapus", "success");
-      this.loadHistoryData();
-    } catch (error) {
-      console.error("Error clearing history:", error);
-      this.showNotification("❌ Gagal menghapus riwayat", "error");
-    } finally {
-      this.hideLoadingState();
+      this.handleAPIError(error, "Riwayat");
     }
   }
 
   updateDashboard(data) {
-    // Update monkey count
+    if (this.systemStatusText) {
+      this.systemStatusText.textContent = data.system_status || "Unknown";
+    }
     if (this.monkeyCount) {
       this.monkeyCount.textContent = data.current_detections || 0;
     }
-
-    // Update last detection
     if (this.lastDetection) {
       this.lastDetection.textContent = data.last_detection || "Belum ada deteksi";
     }
-
-    // Update today's detections
-    if (this.totalDetectionsToday) {
-      this.totalDetectionsToday.textContent = data.total_detections_today || 0;
-    }
-
-    // Update system status
     this.updateSystemStatus(data.system_status || "Unknown");
+  }
 
-    // Update detection indicator if new detections
-    const currentCount = data.current_detections || 0;
-    if (currentCount > this.lastDetectionCount) {
-      this.showNotification(`🐒 Terdeteksi ${currentCount} monyet!`, "warning");
-    }
-    this.lastDetectionCount = currentCount;
+  updateHistoryTable(data) {
+    if (!this.historyTableBody) return;
+    this.historyTableBody.innerHTML = "";
+    (data.history || []).forEach(entry => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${this.formatTime(entry.time)}</td>
+        <td>${entry.count}</td>
+        <td>${entry.location || "Unknown"}</td>
+      `;
+      this.historyTableBody.appendChild(row);
+    });
   }
 
   updateSystemStatus(status) {
-    const statusMap = {
-      "Active": { class: "active", text: "Sistem Aktif" },
-      "Error": { class: "error", text: "Sistem Error" },
-      "Initializing": { class: "connecting", text: "Menginisialisasi..." }
-    };
-
-    const statusInfo = statusMap[status] || { class: "warning", text: status };
-
-    if (this.systemStatusDot) {
-      this.systemStatusDot.className = `status-dot ${statusInfo.class}`;
-    }
-
-    if (this.systemStatusText) {
-      this.systemStatusText.textContent = statusInfo.text;
+    if (!this.statusDot || !this.statusText) return;
+    this.statusDot.className = "status-dot";
+    this.statusText.textContent = status;
+    if (status === "Active") {
+      this.statusDot.classList.add("active");
+    } else if (status === "Error") {
+      this.statusDot.classList.add("error");
+    } else {
+      this.statusDot.classList.add("initializing");
     }
   }
 
-  updateConnectionStatus(status, message) {
-    if (!this.statusIndicator) return;
-
-    const dot = this.statusIndicator.querySelector('.status-dot');
-    const text = this.statusIndicator.querySelector('.status-text');
-
-    if (dot) {
-      dot.className = `status-dot ${status}`;
-    }
-
-    if (text) {
-      text.textContent = message;
-    }
-  }
-
-  updateHistoryTable(history) {
-    if (!this.historyTableBody) return;
-
-    if (!history || history.length === 0) {
-      this.historyTableBody.innerHTML = `
-        <tr class="no-data">
-          <td colspan="3">Belum ada data deteksi</td>
-        </tr>
-      `;
-      return;
-    }
-
-    // Sort by time (newest first)
-    const sortedHistory = [...history].reverse();
-    
-    this.historyTableBody.innerHTML = sortedHistory.map(item => `
-      <tr>
-        <td>${this.formatTime(item.time)}</td>
-        <td><strong>${item.count}</strong></td>
-        <td>${item.location || 'Webcam'}</td>
-      </tr>
-    `).join('');
-
-    // Update statistics
-    this.updateStatistics(history);
-  }
-
-  updateHistoryCount(count) {
-    if (this.historyCount) {
-      this.historyCount.textContent = `${count} entri`;
-    }
-  }
-
-  updateStatistics(history) {
-    if (!history || history.length === 0) {
-      if (this.totalDetections) this.totalDetections.textContent = "0";
-      if (this.avgPerDay) this.avgPerDay.textContent = "0";
-      return;
-    }
-
-    // Total detections
-    const totalCount = history.reduce((sum, item) => sum + (item.count || 0), 0);
-    if (this.totalDetections) {
-      this.totalDetections.textContent = totalCount;
-    }
-
-    // Average per day
-    const uniqueDays = new Set(history.map(item => item.time.split(' ')[0])).size;
-    const avgPerDay = uniqueDays > 0 ? Math.round(totalCount / uniqueDays) : 0;
-    if (this.avgPerDay) {
-      this.avgPerDay.textContent = avgPerDay;
-    }
-  }
-
-  formatTime(timeString) {
-    try {
-      const date = new Date(timeString);
-      return date.toLocaleString('id-ID', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-    } catch (error) {
-      return timeString;
-    }
-  }
-
-  refreshData() {
-    console.log("Refreshing data...");
-    this.showNotification("🔄 Memperbarui data...", "info");
-    this.loadStatusData();
-    this.loadHistoryData();
-  }
-
-  handleAPIError(context, error) {
-    console.error(`Error loading ${context}:`, error);
-    
-    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-      this.updateConnectionStatus("error", "Koneksi terputus");
-    }
-  }
-
-  showLoadingState() {
-    if (this.loadingOverlay) {
-      this.loadingOverlay.classList.remove("hidden");
-    }
-  }
-
-  hideLoadingState() {
-    if (this.loadingOverlay) {
-      this.loadingOverlay.classList.add("hidden");
-    }
-  }
-
-  showNotification(message, type = "info", duration = 5000) {
+  showNotification(message, type) {
     if (!this.toastContainer) return;
-
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
-    
-    // Add icon based on type
-    const icons = {
-      success: "✅",
-      error: "❌",
-      warning: "⚠️",
-      info: "ℹ️"
-    };
-
-    toast.innerHTML = `
-      <span>${icons[type] || "ℹ️"}</span>
-      <span>${message}</span>
-    `;
-
+    toast.textContent = message;
     this.toastContainer.appendChild(toast);
-
-    // Auto remove
     setTimeout(() => {
-      if (toast.parentNode) {
-        toast.parentNode.removeChild(toast);
-      }
-    }, duration);
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }, 100);
+  }
 
-    // Click to dismiss
-    toast.addEventListener("click", () => {
-      if (toast.parentNode) {
-        toast.parentNode.removeChild(toast);
-      }
+  formatTime(timeStr) {
+    if (!timeStr || timeStr === "Belum ada deteksi") return timeStr;
+    const date = new Date(timeStr);
+    return date.toLocaleString("id-ID", {
+      dateStyle: "medium",
+      timeStyle: "short"
     });
+  }
+
+  handleAPIError(error, context) {
+    console.error(`Error loading ${context}:`, error);
+    this.showNotification(`❌ Gagal memuat ${context.toLowerCase()}: ${error.message}`, "error");
+  }
+
+  async refreshData() {
+    this.showNotification("🔄 Memperbarui data...", "info");
+    await Promise.all([
+      this.loadStatusData(),
+      this.loadHistoryData()
+    ]);
+    this.showNotification("✅ Data berhasil diperbarui", "success");
   }
 }
 
-// Initialize application when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Loading application...");
-  try {
-    new MonkeyDetectionMonitor();
-    console.log("Application successfully loaded");
-  } catch (error) {
-    console.error("Failed to initialize application:", error);
-  }
+  console.log("Memuat aplikasi...");
+  new MonkeyDetectionMonitor();
+  console.log("Aplikasi berhasil dimuat");
 });
 
-// Global error handlers
 window.addEventListener("error", (event) => {
-  console.error("Global error:", event.error);
+  console.error("Error global:", event.error);
 });
 
 window.addEventListener("unhandledrejection", (event) => {
-  console.error("Unhandled promise rejection:", event.reason);
+  console.error("Penolakan promise yang tidak ditangani:", event.reason);
 });
