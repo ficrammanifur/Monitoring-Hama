@@ -1,9 +1,13 @@
+// ===== KONFIGURASI API =====
+// Ganti URL ini dengan ngrok URL Anda (TANPA trailing slash)
+const API_BASE_URL = "https://0e4f14596aef.ngrok-free.app"; // Update with your active ngrok URL
+// Contoh: const API_BASE_URL = "https://new-url.ngrok-free.app";
+// PENTING: Pastikan tidak ada "/" di akhir URL
+
 class MonkeyDetectionMonitor {
   constructor() {
-    // Centralized base URL configuration (update this for new ngrok or production URL)
-    this.baseURL = "https://ficrammanifur.github.io/Monitoring-Hama/?baseURL=https://866dea127727.ngrok-free.app"; // Default ngrok HTTPS URL
-
-    // Dynamically set baseURL from a query parameter (if provided)
+    // Centralized base URL, overridden by query parameter if provided
+    this.baseURL = API_BASE_URL;
     this.initializeBaseURL();
 
     // Define endpoints derived from baseURL
@@ -31,7 +35,6 @@ class MonkeyDetectionMonitor {
   }
 
   getEndpoints() {
-    // Centralize all endpoint URLs, derived from baseURL
     return {
       videoFeed: `${this.baseURL}/video_feed`,
       history: `${this.baseURL}/api/history`,
@@ -60,7 +63,7 @@ class MonkeyDetectionMonitor {
       this.videoFeed.classList.add("loaded");
       this.videoOverlay.classList.add("hidden");
       this.updateSystemStatus(true);
-      this.videoRetryAttempts = 0; // Reset retries on success
+      this.videoRetryAttempts = 0;
       console.log("Video feed loaded successfully");
     });
 
@@ -119,27 +122,47 @@ class MonkeyDetectionMonitor {
       }, 2000);
     } else {
       console.error("Max video feed retries reached");
-      this.showToast("Failed to connect to webcam feed after retries", "error");
+      this.showNotification("❌ Gagal terhubung ke feed webcam setelah beberapa percobaan. Pastikan backend berjalan.", "error");
+    }
+  }
+
+  async apiCall(endpoint, method = "GET") {
+    try {
+      const config = {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true" // Skip ngrok browser warning
+        }
+      };
+
+      console.log(`Making API call: ${method} ${this.baseURL}${endpoint}`);
+      const response = await fetch(`${this.baseURL}${endpoint}`, config);
+
+      // Check if response is HTML (error page)
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("text/html")) {
+        const errorText = await response.text();
+        throw new Error(`Server returned HTML instead of JSON: ${errorText.slice(0, 100)}... Check if API is running and ngrok URL is correct.`);
+      }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error(`API Error (${method} ${endpoint}):`, error);
+      this.showNotification(`❌ Gagal terhubung ke server: ${error.message}. Pastikan backend dan ngrok berjalan.`, "error");
+      throw error;
     }
   }
 
   async loadHistoryData() {
     try {
       this.showLoadingState();
-      console.log(`Fetching history from: ${this.endpoints.history}`);
-      const response = await fetch(this.endpoints.history, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, response: ${errorText}`);
-      }
-
-      const data = await response.json();
+      const data = await this.apiCall("/api/history");
 
       if (!data || typeof data !== "object" || !Array.isArray(data.history)) {
         throw new Error("Invalid response format: 'history' must be an array");
@@ -166,11 +189,11 @@ class MonkeyDetectionMonitor {
       this.lastDetection.textContent = this.formatTime(lastRecord.time);
 
       if (lastRecord.count > this.lastDetectionCount) {
-        this.showToast(`New detection: ${lastRecord.count} monkey(s) spotted!`, "success");
+        this.showNotification(`🐒 Deteksi baru: ${lastRecord.count} monyet terdeteksi!`, "success");
         this.lastDetectionCount = lastRecord.count;
       }
     } else {
-      this.lastDetection.textContent = "Never";
+      this.lastDetection.textContent = "Belum pernah";
     }
 
     const hasRecentDetection = history.some((record) => {
@@ -179,7 +202,7 @@ class MonkeyDetectionMonitor {
       return now - recordTime < 30000;
     });
 
-    this.systemStatusText.textContent = hasRecentDetection ? "Active" : "Idle";
+    this.systemStatusText.textContent = hasRecentDetection ? "Aktif" : "Idle";
     this.updateHistoryTable(history);
   }
 
@@ -187,7 +210,7 @@ class MonkeyDetectionMonitor {
     if (!history || history.length === 0) {
       this.historyTableBody.innerHTML = `
         <tr class="no-data">
-          <td colspan="3">No detection history available</td>
+          <td colspan="3">Tidak ada riwayat deteksi tersedia</td>
         </tr>
       `;
       return;
@@ -212,10 +235,10 @@ class MonkeyDetectionMonitor {
     this.isConnected = connected;
     if (connected) {
       this.statusDot.classList.remove("inactive");
-      this.statusText.textContent = "Connected";
+      this.statusText.textContent = "Terhubung";
     } else {
       this.statusDot.classList.add("inactive");
-      this.statusText.textContent = "Disconnected";
+      this.statusText.textContent = "Terputus";
     }
   }
 
@@ -231,11 +254,11 @@ class MonkeyDetectionMonitor {
     this.historyTableBody.innerHTML = `
       <tr class="no-data">
         <td colspan="3">
-          <span style="color: #ef4444;">Failed to load data: ${error.message}</span>
+          <span style="color: #ef4444;">Gagal memuat data: ${error.message}</span>
         </td>
       </tr>
     `;
-    this.showToast(`Failed to connect to backend server: ${error.message}`, "error");
+    this.showNotification(`❌ Gagal terhubung ke server: ${error.message}`, "error");
   }
 
   refreshData() {
@@ -250,40 +273,69 @@ class MonkeyDetectionMonitor {
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffMins < 1) return "Baru saja";
+    if (diffMins < 60) return `${diffMins} menit lalu`;
+    if (diffHours < 24) return `${diffHours} jam lalu`;
+    if (diffDays < 7) return `${diffDays} hari lalu`;
 
     return (
-      date.toLocaleDateString() +
+      date.toLocaleDateString("id-ID") +
       " " +
-      date.toLocaleTimeString([], {
+      date.toLocaleTimeString("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
       })
     );
   }
 
-  showToast(message, type = "success") {
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    this.toastContainer.appendChild(toast);
+  showNotification(message, type = "info") {
+    const notification = document.createElement("div");
+    notification.className = `toast toast-${type}`;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 10000;
+      max-width: 300px;
+      word-wrap: break-word;
+    `;
+
+    switch (type) {
+      case "success":
+        notification.style.backgroundColor = "#22c55e";
+        break;
+      case "error":
+        notification.style.backgroundColor = "#ef4444";
+        break;
+      case "warning":
+        notification.style.backgroundColor = "#f59e0b";
+        break;
+      default:
+        notification.style.backgroundColor = "#3b82f6";
+    }
+
+    notification.textContent = message;
+    this.toastContainer.appendChild(notification);
 
     setTimeout(() => {
-      toast.classList.add("fade-out");
+      notification.classList.add("fade-out");
       setTimeout(() => {
-        if (toast.parentNode) {
-          toast.parentNode.removeChild(toast);
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
         }
       }, 300);
-    }, 4000);
+    }, 5000);
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("Loading application...");
   new MonkeyDetectionMonitor();
+  console.log("Application loaded successfully");
 });
 
 window.addEventListener("error", (event) => {
