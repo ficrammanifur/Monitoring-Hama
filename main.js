@@ -1,7 +1,7 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    // Replace with your active backend URL (ngrok or cloud service)
-    this.baseURL = "https://a60bc9ce68c1.ngrok-free.app"; // Update with your ngrok or Render URL
+    // Replace with your active ngrok or cloud URL
+    this.baseURL = "https://47a5ba6475f9.ngrok-free.app"; // Update with your ngrok URL
     this.initializeBaseURL();
 
     // Define endpoints
@@ -17,7 +17,7 @@ class MonkeyDetectionMonitor {
     this.isConnected = false;
     this.videoRetryAttempts = 0;
     this.maxVideoRetries = 5;
-    this.retryDelay = 3000;
+    this.retryDelay = 5000;
 
     this.initializeElements();
     this.setupEventListeners();
@@ -25,7 +25,6 @@ class MonkeyDetectionMonitor {
   }
 
   initializeBaseURL() {
-    // Allow override via query parameter (e.g., ?baseURL=https://new-url.ngrok-free.app)
     const urlParams = new URLSearchParams(window.location.search);
     const customBaseURL = urlParams.get('baseURL');
     if (customBaseURL) {
@@ -81,7 +80,7 @@ class MonkeyDetectionMonitor {
       }
     });
 
-    window.monitor = this; // Expose for retry button
+    window.monitor = this;
   }
 
   startMonitoring() {
@@ -118,10 +117,10 @@ class MonkeyDetectionMonitor {
     } else {
       console.error("Max video feed retries reached");
       this.videoOverlay.innerHTML = `
-        <p style="color: #ef4444;">Failed to connect to webcam feed. Please ensure the backend is running.</p>
+        <p style="color: #ef4444;">Failed to connect to webcam feed. Please ensure the backend server is running and the ngrok URL is active.</p>
         <button onclick="window.monitor.retryVideoFeed()">Retry</button>
       `;
-      this.showNotification("❌ Gagal terhubung ke feed webcam. Pastikan backend berjalan.", "error");
+      this.showNotification("❌ Gagal terhubung ke feed webcam. Pastikan server backend berjalan dan URL ngrok aktif.", "error");
     }
   }
 
@@ -146,7 +145,7 @@ class MonkeyDetectionMonitor {
       return await response.json();
     } catch (error) {
       console.error(`API Error (${method} ${endpoint}):`, error);
-      this.showNotification(`❌ Gagal terhubung ke server: ${error.message}. Pastikan backend berjalan.`, "error");
+      this.showNotification(`❌ Gagal terhubung ke server: ${error.message}. Pastikan server backend aktif.`, "error");
       throw error;
     }
   }
@@ -277,7 +276,7 @@ class MonkeyDetectionMonitor {
     const diffMs = now - date;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHrs / 24);
+    const diffDays = Math.floor(diffHours / 24);
 
     if (diffMins < 1) return "Baru saja";
     if (diffMins < 60) return `${diffMins} menit lalu`;
