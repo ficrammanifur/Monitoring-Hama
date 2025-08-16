@@ -1,7 +1,7 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    // Default backend URL (update with your active backend URL, e.g., ngrok or Render)
-    this.baseURL = "https://f7af5a0baecd.ngrok-free.app"; // Replace with your backend URL
+    // Replace with your active backend URL (ngrok or cloud service)
+    this.baseURL = "https://a60bc9ce68c1.ngrok-free.app"; // Update with your ngrok or Render URL
     this.initializeBaseURL();
 
     // Define endpoints
@@ -29,7 +29,7 @@ class MonkeyDetectionMonitor {
     const urlParams = new URLSearchParams(window.location.search);
     const customBaseURL = urlParams.get('baseURL');
     if (customBaseURL) {
-      this.baseURL = customBaseURL.replace(/\/$/, ''); // Remove trailing slash
+      this.baseURL = customBaseURL.replace(/\/$/, '');
       console.log(`Base URL set from query parameter: ${this.baseURL}`);
     }
   }
@@ -63,7 +63,7 @@ class MonkeyDetectionMonitor {
       this.videoOverlay.classList.remove("hidden");
       this.videoOverlay.innerHTML = `
         <div class="loading-spinner"></div>
-        <p>Camera connection failed. Retrying...</p>
+        <p>Camera connection failed. <button onclick="window.monitor.retryVideoFeed()">Retry</button></p>
       `;
       this.updateSystemStatus(false);
       this.retryVideoFeed();
@@ -80,6 +80,8 @@ class MonkeyDetectionMonitor {
         this.startMonitoring();
       }
     });
+
+    window.monitor = this; // Expose for retry button
   }
 
   startMonitoring() {
@@ -117,8 +119,9 @@ class MonkeyDetectionMonitor {
       console.error("Max video feed retries reached");
       this.videoOverlay.innerHTML = `
         <p style="color: #ef4444;">Failed to connect to webcam feed. Please ensure the backend is running.</p>
+        <button onclick="window.monitor.retryVideoFeed()">Retry</button>
       `;
-      this.showNotification("❌ Gagal terhubung ke feed webcam setelah beberapa percobaan. Pastikan backend berjalan.", "error");
+      this.showNotification("❌ Gagal terhubung ke feed webcam. Pastikan backend berjalan.", "error");
     }
   }
 
@@ -274,7 +277,7 @@ class MonkeyDetectionMonitor {
     const diffMs = now - date;
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
+    const diffDays = Math.floor(diffHrs / 24);
 
     if (diffMins < 1) return "Baru saja";
     if (diffMins < 60) return `${diffMins} menit lalu`;
