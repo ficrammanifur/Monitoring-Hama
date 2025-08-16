@@ -1,7 +1,7 @@
 class MonkeyDetectionMonitor {
   constructor() {
     // Initialize with local URL for testing; update with ngrok URL when deployed
-    this.baseURL = "https://d870c5284d9e.ngrok-free.app"; // Update to ngrok URL when running with ngrok
+    this.baseURL = "https://df558659d381.ngrok-free.app"; // Update to ngrok URL when running with ngrok
     this.initializeBaseURL();
 
     // Define endpoints
@@ -107,18 +107,7 @@ initializeVideoFeed() {
     const videoUrl = `${this.endpoints.videoFeed}?t=${Date.now()}`;
     console.log(`Mencoba memuat feed video dari: ${videoUrl}`);
     this.videoFeed.src = videoUrl;
-
-    // Tambahan: Periksa status permintaan
-    fetch(videoUrl, { method: 'HEAD', headers: { "ngrok-skip-browser-warning": "true" } })
-        .then(response => {
-            console.log(`Status HTTP untuk ${videoUrl}: ${response.status}`);
-            if (!response.ok) {
-                console.error(`Gagal memuat video feed: HTTP ${response.status}`);
-            }
-        })
-        .catch(error => {
-            console.error(`Error saat memeriksa video feed: ${error.message}`);
-        });
+    // Hapus fetch HEAD untuk menghindari preflight error
 }
 
   retryVideoFeed() {
