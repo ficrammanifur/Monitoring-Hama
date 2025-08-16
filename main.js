@@ -1,6 +1,6 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "https://7ddb66b7b202.ngrok-free.app"; // Ganti dengan URL ngrok yang aktif
+    this.baseURL = "https://7a5475a4a6ea.ngrok-free.app"; // Ganti dengan URL ngrok yang aktif
     this.initializeBaseURL();
 
     // Build endpoints dengan benar - hindari duplikasi URL
