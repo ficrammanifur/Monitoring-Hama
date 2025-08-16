@@ -1,13 +1,14 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "https://7ddb66b7b202.ngrok-free.app"; // Ganti dengan URL ngrok saat deploy
+    this.baseURL = "https://7ddb66b7b202.ngrok-free.app"; // Default lokal
     this.initializeBaseURL();
 
+    // Gunakan path relatif untuk endpoints
     this.endpoints = {
-      videoFeed: `${this.baseURL}/video_feed`,
-      history: `${this.baseURL}/api/history`,
-      status: `${this.baseURL}/api/status`,
-      clearHistory: `${this.baseURL}/api/clear_history`
+      videoFeed: `/video_feed`,
+      history: `/api/history`,
+      status: `/api/status`,
+      clearHistory: `/api/clear_history`
     };
 
     this.lastDetectionCount = 0;
@@ -28,6 +29,13 @@ class MonkeyDetectionMonitor {
     if (customBaseURL) {
       this.baseURL = customBaseURL.replace(/\/$/, '');
       console.log(`Base URL set from query parameter: ${this.baseURL}`);
+    }
+    // Validasi baseURL
+    try {
+      new URL(this.baseURL);
+    } catch (e) {
+      console.error(`Invalid baseURL: ${this.baseURL}, reverting to default`);
+      this.baseURL = "http://localhost:5000";
     }
   }
 
@@ -103,7 +111,7 @@ class MonkeyDetectionMonitor {
   }
 
   initializeVideoFeed() {
-    const videoUrl = `${this.endpoints.videoFeed}?t=${Date.now()}`;
+    const videoUrl = `${this.baseURL}${this.endpoints.videoFeed}?t=${Date.now()}`;
     console.log(`Mencoba memuat feed video dari: ${videoUrl}`);
     this.loadMjpegStream(videoUrl);
   }
@@ -245,6 +253,8 @@ class MonkeyDetectionMonitor {
 
   async apiCall(endpoint, method = "GET") {
     try {
+      const url = `${this.baseURL}${endpoint}`;
+      console.log(`Membuat panggilan API: ${method} ${url}`);
       const config = {
         method: method,
         headers: {
@@ -253,8 +263,7 @@ class MonkeyDetectionMonitor {
         }
       };
 
-      console.log(`Membuat panggilan API: ${method} ${this.baseURL}${endpoint}`);
-      const response = await fetch(`${this.baseURL}${endpoint}`, config);
+      const response = await fetch(url, config);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
