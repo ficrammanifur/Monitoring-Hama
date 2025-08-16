@@ -3,44 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Deteksi Monyet</title>
+    <title>Monkey Detection Monitor</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Sistem Deteksi Monyet</h1>
-        <div class="video-container">
-            <canvas id="videoCanvas" width="1280" height="720" style="width: 100%; height: 100%; object-fit: cover;"></canvas>
-            <div class="video-overlay" id="videoOverlay">
-                <div class="loading-spinner"></div>
-                <p>Menghubungkan ke webcam...</p>
+        <header class="header">
+            <h1>🐒 Sistem Monitoring Deteksi Monyet</h1>
+            <p class="subtitle">Real-time webcam monitoring menggunakan AI</p>
+        </header>
+
+        <!-- Status Connection -->
+        <div class="connection-status" id="connectionStatus">
+            <div class="status-indicator" id="statusIndicator">
+                <div class="status-dot connecting"></div>
+                <span class="status-text">Menghubungkan ke server...</span>
             </div>
         </div>
-        <div class="status-container">
-            <div id="systemStatus">
-                <span class="status-dot"></span>
-                <span class="status-text">Initializing...</span>
+
+        <!-- Video Feed Section -->
+        <div class="video-section">
+            <div class="video-container">
+                <canvas id="videoCanvas" width="1280" height="720"></canvas>
+                <div id="videoOverlay" class="video-overlay">
+                    <div class="loading-spinner"></div>
+                    <p>Memuat feed video...</p>
+                </div>
             </div>
-            <p>Status Sistem: <span id="systemStatusText">Initializing</span></p>
-            <p>Jumlah Monyet Terdeteksi: <span id="monkeyCount">0</span></p>
-            <p>Deteksi Terakhir: <span id="lastDetection">Belum ada deteksi</span></p>
         </div>
-        <div class="history-container">
-            <h2>Riwayat Deteksi</h2>
-            <button id="refreshBtn">Refresh Data</button>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Waktu</th>
-                        <th>Jumlah Monyet</th>
-                        <th>Lokasi</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTableBody"></tbody>
-            </table>
+
+        <!-- Controls -->
+        <div class="controls-section">
+            <button id="refreshBtn" class="btn btn-primary">
+                <span class="btn-icon">🔄</span>
+                Refresh Data
+            </button>
+            <button id="clearHistoryBtn" class="btn btn-secondary">
+                <span class="btn-icon">🗑️</span>
+                Clear History
+            </button>
         </div>
-        <div id="toastContainer"></div>
+
+        <!-- Statistics Dashboard -->
+        <div class="dashboard-grid">
+            <!-- System Status Panel -->
+            <div class="panel status-panel">
+                <h2 class="panel-title">Status Sistem</h2>
+                <div class="status-item" id="systemStatus">
+                    <div class="status-label">
+                        <span class="status-dot" id="systemStatusDot"></span>
+                        <span class="status-text" id="systemStatusText">Initializing...</span>
+                    </div>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Deteksi Saat Ini:</span>
+                    <span class="status-value" id="monkeyCount">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Deteksi Terakhir:</span>
+                    <span class="status-value" id="lastDetection">Belum ada deteksi</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Total Deteksi Hari Ini:</span>
+                    <span class="status-value" id="totalDetectionsToday">0</span>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="panel stats-panel">
+                <h2 class="panel-title">Statistik Cepat</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalDetections">0</div>
+                        <div class="stat-label">Total Deteksi</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="avgPerDay">0</div>
+                        <div class="stat-label">Rata-rata/Hari</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="panel history-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Riwayat Deteksi</h2>
+                <div class="panel-actions">
+                    <span class="history-count" id="historyCount">0 entri</span>
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Waktu</th>
+                            <th>Jumlah</th>
+                            <th>Lokasi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr class="no-data">
+                            <td colspan="3">Belum ada data deteksi</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="loading-spinner large"></div>
+            <p>Memuat data...</p>
+        </div>
+    </div>
+
     <script src="main.js"></script>
 </body>
 </html>
