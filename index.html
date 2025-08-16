@@ -1,127 +1,98 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monkey Detection Monitor</title>
+    <title>Monkey Detection Monitoring System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <h1>🐒 Sistem Monitoring Deteksi Monyet</h1>
-            <p class="subtitle">Real-time webcam monitoring menggunakan AI</p>
+            <h1>🐒 Monkey Detection System</h1>
+            <div class="status-indicator" id="systemStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
         </header>
 
-        <!-- Status Connection -->
-        <div class="connection-status" id="connectionStatus">
-            <div class="status-indicator" id="statusIndicator">
-                <div class="status-dot connecting"></div>
-                <span class="status-text">Menghubungkan ke server...</span>
-            </div>
-        </div>
-
-        <!-- Video Feed Section -->
-        <div class="video-section">
-            <div class="video-container">
-                <canvas id="videoCanvas" width="1280" height="720"></canvas>
-                <div id="videoOverlay" class="video-overlay">
-                    <div class="loading-spinner"></div>
-                    <p>Memuat feed video...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="controls-section">
-            <button id="refreshBtn" class="btn btn-primary">
-                <span class="btn-icon">🔄</span>
-                Refresh Data
-            </button>
-            <button id="clearHistoryBtn" class="btn btn-secondary">
-                <span class="btn-icon">🗑️</span>
-                Clear History
-            </button>
-        </div>
-
-        <!-- Statistics Dashboard -->
-        <div class="dashboard-grid">
-            <!-- System Status Panel -->
-            <div class="panel status-panel">
-                <h2 class="panel-title">Status Sistem</h2>
-                <div class="status-item" id="systemStatus">
-                    <div class="status-label">
-                        <span class="status-dot" id="systemStatusDot"></span>
-                        <span class="status-text" id="systemStatusText">Initializing...</span>
+        <main class="dashboard">
+            <section class="live-feed-section">
+                <div class="card">
+                    <h2>Live Webcam Feed</h2>
+                    <div class="video-container">
+                        <canvas id="videoCanvas" width="1280" height="720" class="video-feed"></canvas>
+                        <div class="video-overlay" id="videoOverlay">
+                            <div class="loading-spinner"></div>
+                            <p>Connecting to webcam...</p>
+                        </div>
                     </div>
                 </div>
-                <div class="status-item">
-                    <span class="status-label">Deteksi Saat Ini:</span>
-                    <span class="status-value" id="monkeyCount">0</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Deteksi Terakhir:</span>
-                    <span class="status-value" id="lastDetection">Belum ada deteksi</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">Total Deteksi Hari Ini:</span>
-                    <span class="status-value" id="totalDetectionsToday">0</span>
-                </div>
-            </div>
+            </section>
 
-            <!-- Quick Stats -->
-            <div class="panel stats-panel">
-                <h2 class="panel-title">Statistik Cepat</h2>
+            <section class="stats-section">
                 <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number" id="totalDetections">0</div>
-                        <div class="stat-label">Total Deteksi</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🐒</div>
+                        <div class="stat-content">
+                            <h3>Monkeys Detected</h3>
+                            <p class="stat-number" id="monkeyCount">0</p>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="avgPerDay">0</div>
-                        <div class="stat-label">Rata-rata/Hari</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-content">
+                            <h3>Last Detection</h3>
+                            <p class="stat-time" id="lastDetection">Never</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <h3>System Status</h3>
+                            <p class="stat-status" id="systemStatusText">Idle</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
 
-        <!-- History Table -->
-        <div class="panel history-panel">
-            <div class="panel-header">
-                <h2 class="panel-title">Riwayat Deteksi</h2>
-                <div class="panel-actions">
-                    <span class="history-count" id="historyCount">0 entri</span>
+            <section class="history-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Detection History</h2>
+                        <button class="refresh-btn" id="refreshBtn">
+                            <span class="refresh-icon">🔄</span>
+                            Refresh
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Monkey Count</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <tr class="no-data">
+                                    <td colspan="3">
+                                        <div class="loading-spinner small"></div>
+                                        Loading history...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            <div class="table-container">
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>Waktu</th>
-                            <th>Jumlah</th>
-                            <th>Lokasi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody">
-                        <tr class="no-data">
-                            <td colspan="3">Belum ada data deteksi</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
 
-    <!-- Toast Container -->
-    <div id="toastContainer" class="toast-container"></div>
-
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="loading-content">
-            <div class="loading-spinner large"></div>
-            <p>Memuat data...</p>
-        </div>
-    </div>
+    <div class="toast-container" id="toastContainer"></div>
 
     <script src="main.js"></script>
 </body>
