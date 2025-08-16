@@ -1,6 +1,6 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "http://localhost:5000"; // Ganti dengan URL ngrok saat deploy
+    this.baseURL = "https://7ddb66b7b202.ngrok-free.app"; // Ganti dengan URL ngrok saat deploy
     this.initializeBaseURL();
 
     this.endpoints = {
