@@ -1,6 +1,6 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    this.baseURL = "http://localhost:5000"; // Default lokal
+    this.baseURL = "https://0f46d5c643d0.ngrok-free.app"; // Default lokal
     this.initializeBaseURL();
 
     this.endpoints = {
