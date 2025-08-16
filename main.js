@@ -1,7 +1,7 @@
 class MonkeyDetectionMonitor {
   constructor() {
-    // Replace with your active ngrok or cloud URL
-    this.baseURL = "https://019185c3db9a.ngrok-free.app"; // Update with your ngrok URL
+    // Initialize with local URL for testing; update with ngrok URL when deployed
+    this.baseURL = "https://6f14df25ad25.ngrok-free.app"; // Update to ngrok URL when running with ngrok
     this.initializeBaseURL();
 
     // Define endpoints
@@ -16,8 +16,8 @@ class MonkeyDetectionMonitor {
     this.refreshInterval = null;
     this.isConnected = false;
     this.videoRetryAttempts = 0;
-    this.maxVideoRetries = 5;
-    this.retryDelay = 5000;
+    this.maxVideoRetries = 10; // Increased for more attempts
+    this.retryDelay = 10000; // Increased to 10 seconds
 
     this.initializeElements();
     this.setupEventListeners();
@@ -58,6 +58,7 @@ class MonkeyDetectionMonitor {
     });
 
     this.videoFeed.addEventListener("error", () => {
+      console.error("Video feed error occurred");
       this.videoFeed.classList.remove("loaded");
       this.videoOverlay.classList.remove("hidden");
       this.videoOverlay.innerHTML = `
@@ -103,8 +104,9 @@ class MonkeyDetectionMonitor {
   }
 
   initializeVideoFeed() {
-    this.videoFeed.src = `${this.endpoints.videoFeed}?t=${Date.now()}`;
-    console.log(`Attempting to load video feed from: ${this.videoFeed.src}`);
+    const videoUrl = `${this.endpoints.videoFeed}?t=${Date.now()}`;
+    console.log(`Attempting to load video feed from: ${videoUrl}`);
+    this.videoFeed.src = videoUrl;
   }
 
   retryVideoFeed() {
@@ -117,10 +119,11 @@ class MonkeyDetectionMonitor {
     } else {
       console.error("Max video feed retries reached");
       this.videoOverlay.innerHTML = `
-        <p style="color: #ef4444;">Failed to connect to webcam feed. Please ensure the backend server is running and the ngrok URL is active.</p>
+        <p style="color: #ef4444;">Failed to connect to webcam feed. Please ensure the backend server is running and the base URL is correct.</p>
         <button onclick="window.monitor.retryVideoFeed()">Retry</button>
       `;
-      this.showNotification("❌ Gagal terhubung ke feed webcam. Pastikan server backend berjalan dan URL ngrok aktif.", "error");
+      this.showNotification("❌ Gagal terhubung ke feed webcam. Pastikan server backend berjalan dan URL aktif.", "error");
+      this.videoRetryAttempts = 0; // Reset to allow manual retries
     }
   }
 
@@ -142,7 +145,9 @@ class MonkeyDetectionMonitor {
         throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log(`Response data for ${endpoint}:`, data);
+      return data;
     } catch (error) {
       console.error(`API Error (${method} ${endpoint}):`, error);
       this.showNotification(`❌ Gagal terhubung ke server: ${error.message}. Pastikan server backend aktif.`, "error");
