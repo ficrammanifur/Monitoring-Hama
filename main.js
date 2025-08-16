@@ -1,7 +1,7 @@
 class MonkeyDetectionMonitor {
   constructor() {
     // Replace with your active ngrok or cloud URL
-    this.baseURL = "https://47a5ba6475f9.ngrok-free.app"; // Update with your ngrok URL
+    this.baseURL = "https://019185c3db9a.ngrok-free.app"; // Update with your ngrok URL
     this.initializeBaseURL();
 
     // Define endpoints
