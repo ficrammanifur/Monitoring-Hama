@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐒 Monkey Detection Dashboard</title>
+    <title>Single-Page Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
@@ -15,22 +14,17 @@
         <div class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-title">
-                    <i data-lucide="camera" class="icon"></i>
-                    <span class="title-text">Deteksi Monyet</span>
-                </div>
-                <div class="mqtt-status">
-                    <i data-lucide="wifi" class="status-icon" id="mqttIcon"></i>
-                    <span class="status-text" id="mqttStatus">MQTT Terhubung</span>
+                    <i data-lucide="layout-dashboard" class="icon"></i>
+                    <span class="title-text">Dashboard</span>
                 </div>
             </div>
-
             <nav class="sidebar-nav">
                 <button class="nav-button active" data-tab="dashboard">
-                    <i data-lucide="activity" class="icon"></i>
+                    <i data-lucide="home" class="icon"></i>
                     <span class="nav-text">Dashboard Utama</span>
                 </button>
                 <button class="nav-button" data-tab="statistics">
-                    <i data-lucide="bar-chart-3" class="icon"></i>
+                    <i data-lucide="bar-chart-2" class="icon"></i>
                     <span class="nav-text">Statistik</span>
                 </button>
                 <button class="nav-button" data-tab="history">
@@ -38,38 +32,11 @@
                     <span class="nav-text">Detection History</span>
                 </button>
             </nav>
-
             <div class="sidebar-footer">
-                <button class="theme-toggle" id="themeToggle">
-                    <i data-lucide="moon" class="icon"></i>
-                    <span class="nav-text">Mode Gelap</span>
+                <button class="nav-button" data-tab="help">
+                    <i data-lucide="help-circle" class="icon"></i>
+                    <span class="nav-text">Bantuan</span>
                 </button>
-            </div>
-
-            <div class="help-section">
-                <div class="help-card">
-                    <button class="help-header" id="helpToggle">
-                        <div class="help-title">
-                            <i data-lucide="help-circle" class="icon"></i>
-                            <span>Bantuan</span>
-                        </div>
-                        <i data-lucide="chevron-down" class="chevron"></i>
-                    </button>
-                    <div class="help-content" id="helpContent">
-                        <div class="help-text">
-                            <p><strong>Fitur:</strong></p>
-                            <p>• Deteksi monyet realtime</p>
-                            <p>• Statistik & analisis data</p>
-                            <p>• Notifikasi otomatis</p>
-                            <p><strong>Teknologi:</strong></p>
-                            <p>• Backend: Python + YOLO v8</p>
-                            <p>• Computer Vision: OpenCV</p>
-                            <p>• Komunikasi: MQTT Protocol</p>
-                            <p>• Frontend: HTML/CSS/JS</p>
-                            <p>• Database: Real-time logging</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -77,231 +44,80 @@
         <div class="main-content">
             <!-- Dashboard Tab -->
             <div class="tab-content active" id="dashboard">
-                <div class="dashboard-grid">
-                    <div class="video-section">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">
-                                    <i data-lucide="camera" class="icon"></i>
-                                    Live Video Stream
-                                </h3>
-                                <div class="badge" id="mqttBadge">MQTT Aktif</div>
-                            </div>
-                            <div class="card-content">
-                                <div class="video-container">
-                                    <img id="videoStream" src="http://localhost:5000/video_feed" alt="Live Video Stream" style="width: 100%; height: auto;">
-                                    <div class="detection-box" id="detectionBox">
-                                        <div class="detection-label">
-                                            Monyet Terdeteksi
-                                            <div class="confidence">Confidence: 94%</div>
-                                        </div>
-                                    </div>
-                                    <div class="video-timestamp-overlay" id="currentTime"></div>
-                                </div>
-                                <div class="video-info">
-                                    <i data-lucide="camera" class="video-icon"></i>
-                                    <p class="video-title">Kamera Pemantauan Aktif</p>
-                                    <p class="video-details">Resolusi: 1920x1080 | FPS: 30</p>
-                                    <p class="video-timestamp" id="videoTimestamp">Terakhir update: --:--:--</p>
-                                </div>
-                            </div>
-                        </div>
+                <h2>Dashboard Utama</h2>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i data-lucide="activity" class="icon"></i>
+                            Selamat Datang
+                        </h3>
                     </div>
-
-                    <div class="stats-section">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Monyet Terdeteksi</h3>
-                            </div>
-                            <div class="card-content text-center">
-                                <div class="monkey-count" id="monkeyCount">7</div>
-                                <p class="count-label">Jumlah saat ini</p>
-                                <div class="badge">Update Realtime</div>
-                                <p class="last-detection" id="lastDetection">Terakhir: --:--:--</p>
-                            </div>
-                        </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">
-                                    <i data-lucide="trending-up" class="icon"></i>
-                                    Status Sistem
-                                </h3>
-                            </div>
-                            <div class="card-content">
-                                <div class="status-grid">
-                                    <div class="status-item">
-                                        <span>YOLO Model v8</span>
-                                        <div class="badge success">Aktif</div>
-                                    </div>
-                                    <div class="status-item">
-                                        <span>MQTT Broker</span>
-                                        <div class="badge" id="mqttStatusBadge">Terhubung</div>
-                                    </div>
-                                    <div class="status-item">
-                                        <span>Feed Kamera</span>
-                                        <div class="badge success">Streaming</div>
-                                    </div>
-                                    <div class="status-item">
-                                        <span>Database</span>
-                                        <div class="badge success">Logging</div>
-                                    </div>
-                                </div>
-                                <div class="system-metrics">
-                                    <p>Akurasi: 94.2%</p>
-                                    <p>Uptime: 99.1%</p>
-                                    <p>Deteksi/jam: ~12</p>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="card-content">
+                        <p>Ini adalah dashboard utama. Anda dapat melihat gambaran umum sistem di sini.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Statistics Tab -->
             <div class="tab-content" id="statistics">
-                <div class="stats-header">
-                    <h2>Statistik Deteksi Monyet</h2>
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="day">Hari</button>
-                        <button class="filter-btn" data-filter="week">Minggu</button>
-                        <button class="filter-btn" data-filter="month">Bulan</button>
-                    </div>
-                </div>
-
-                <div class="card chart-card">
+                <h2>Statistik</h2>
+                <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Grafik Jumlah Monyet</h3>
-                        <p class="chart-conclusion" id="chartConclusion">Puncak aktivitas: 16:00 (rata-rata 15 monyet)</p>
+                        <h3 class="card-title">
+                            <i data-lucide="bar-chart-2" class="icon"></i>
+                            Data Statistik
+                        </h3>
                     </div>
                     <div class="card-content">
-                        <canvas id="monkeyChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="stats-summary">
-                    <div class="card">
-                        <div class="card-content text-center">
-                            <div class="stat-number" id="totalDetections">44</div>
-                            <p class="stat-label">Total Deteksi</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-content text-center">
-                            <div class="stat-number" id="averageDetections">7</div>
-                            <p class="stat-label">Rata-rata</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-content text-center">
-                            <div class="stat-number" id="maxDetections">15</div>
-                            <p class="stat-label">Maksimum</p>
-                        </div>
+                        <p>Statistik dan analisis data akan ditampilkan di sini.</p>
                     </div>
                 </div>
             </div>
 
             <!-- Detection History Tab -->
             <div class="tab-content" id="history">
-                <div class="history-header">
-                    <h2>Detection History</h2>
-                    <div class="badge" id="captureStatus">Capture Tersedia</div>
-                </div>
-
-                <div class="history-grid">
-                    <div class="card capture-card">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <i data-lucide="image" class="icon" id="captureIcon"></i>
-                                Latest Capture
-                            </h3>
-                            <div class="badge" id="captureTypeBadge">Foto</div>
-                        </div>
-                        <div class="card-content">
-                            <div class="capture-container" id="captureContainer">
-                                <img id="captureImage" src="captures/last_monkey_capture.jpg" alt="Latest Capture" style="width: 100%; height: auto;">
-                                <div class="detection-overlay">
-                                    <div class="detection-box-small" style="top: 25%; left: 33%;">
-                                        <div class="detection-label-small">Monyet</div>
-                                    </div>
-                                    <div class="detection-box-small" style="top: 50%; right: 25%;">
-                                        <div class="detection-label-small">Monyet</div>
-                                    </div>
-                                </div>
-                                <div class="capture-timestamp" id="captureTimestamp"></div>
-                            </div>
-                            <div class="capture-info">
-                                <p class="capture-title" id="captureTitle">Foto Terakhir</p>
-                                <p class="capture-filename" id="captureFilename">last_monkey_capture.jpg</p>
-                                <p class="capture-details" id="captureDetails">3 monyet terdeteksi</p>
-                                <p class="capture-confidence" id="captureConfidence">Confidence: 94.2%</p>
-                            </div>
-                        </div>
+                <h2>Detection History</h2>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i data-lucide="image" class="icon"></i>
+                            Riwayat Deteksi
+                        </h3>
                     </div>
-
-                    <div class="info-section">
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Informasi Capture</h3>
-                            </div>
-                            <div class="card-content">
-                                <div class="info-grid">
-                                    <div class="info-item">
-                                        <p class="info-label">Tipe File</p>
-                                        <p class="info-value" id="fileType">Foto JPG</p>
-                                    </div>
-                                    <div class="info-item">
-                                        <p class="info-label">Ukuran</p>
-                                        <p class="info-value" id="fileSize">856 KB</p>
-                                    </div>
-                                    <div class="info-item">
-                                        <p class="info-label">Resolusi</p>
-                                        <p class="info-value">1920x1080</p>
-                                    </div>
-                                    <div class="info-item">
-                                        <p class="info-label">Durasi</p>
-                                        <p class="info-value" id="fileDuration">Instant</p>
-                                    </div>
-                                </div>
-                                <button class="download-btn" id="downloadBtn">
+                    <div class="card-content">
+                        <div class="history-grid">
+                            <div class="capture-item">
+                                <p class="capture-title">Capture Terakhir</p>
+                                <p class="capture-filename">last_monkey_capture.jpg</p>
+                                <p class="capture-details">3 monyet terdeteksi</p>
+                                <p class="capture-timestamp">23 Agustus 2025, 20:15 WIB</p>
+                                <button class="download-btn">
                                     <i data-lucide="download" class="icon"></i>
-                                    Download Foto
+                                    Download
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <div class="card">
-                            <div class="card-header">
-                                <h3 class="card-title">Event-Based Recording</h3>
-                            </div>
-                            <div class="card-content">
-                                <div class="recording-status">
-                                    <div class="status-item">
-                                        <span>Auto Recording</span>
-                                        <div class="badge success">Aktif</div>
-                                    </div>
-                                    <div class="status-item">
-                                        <span>Rolling Storage</span>
-                                        <div class="badge success">Enabled</div>
-                                    </div>
-                                    <div class="status-item">
-                                        <span>Trigger Threshold</span>
-                                        <span class="threshold">≥1 monyet</span>
-                                    </div>
-                                    <div class="status-item">
-                                        <span>Max Video Length</span>
-                                        <span class="threshold">10 detik</span>
-                                    </div>
-                                </div>
-                                <div class="recording-info">
-                                    <p class="info-title">Cara Kerja:</p>
-                                    <p>• Deteksi monyet → Auto capture/record</p>
-                                    <p>• File lama otomatis diganti</p>
-                                    <p>• Hanya simpan capture terakhir</p>
-                                    <p>• Hemat storage dengan rolling system</p>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Help Tab -->
+            <div class="tab-content" id="help">
+                <h2>Bantuan</h2>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i data-lucide="help-circle" class="icon"></i>
+                            Informasi Bantuan
+                        </h3>
+                    </div>
+                    <div class="card-content">
+                        <p><strong>Panduan Penggunaan:</strong></p>
+                        <p>• Gunakan menu di sidebar untuk navigasi.</p>
+                        <p>• Dashboard Utama: Menampilkan informasi umum.</p>
+                        <p>• Statistik: Menampilkan data dan analisis.</p>
+                        <p>• Detection History: Melihat riwayat deteksi sebelumnya.</p>
+                        <p>• Hubungi admin untuk dukungan lebih lanjut.</p>
                     </div>
                 </div>
             </div>
