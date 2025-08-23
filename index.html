@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
     <div class="dashboard-container">
@@ -89,15 +89,7 @@
                             </div>
                             <div class="card-content">
                                 <div class="video-container">
-                                    <div class="video-placeholder">
-                                        <div class="video-grid"></div>
-                                        <div class="video-info">
-                                            <i data-lucide="camera" class="video-icon"></i>
-                                            <p class="video-title">Kamera Pemantauan Aktif</p>
-                                            <p class="video-details">Resolusi: 1920x1080 | FPS: 30</p>
-                                            <p class="video-timestamp" id="videoTimestamp">Terakhir update: --:--:--</p>
-                                        </div>
-                                    </div>
+                                    <img id="videoStream" src="http://localhost:5000/video_feed" alt="Live Video Stream" style="width: 100%; height: auto;">
                                     <div class="detection-box" id="detectionBox">
                                         <div class="detection-label">
                                             Monyet Terdeteksi
@@ -105,6 +97,12 @@
                                         </div>
                                     </div>
                                     <div class="video-timestamp-overlay" id="currentTime"></div>
+                                </div>
+                                <div class="video-info">
+                                    <i data-lucide="camera" class="video-icon"></i>
+                                    <p class="video-title">Kamera Pemantauan Aktif</p>
+                                    <p class="video-details">Resolusi: 1920x1080 | FPS: 30</p>
+                                    <p class="video-timestamp" id="videoTimestamp">Terakhir update: --:--:--</p>
                                 </div>
                             </div>
                         </div>
@@ -221,15 +219,7 @@
                         </div>
                         <div class="card-content">
                             <div class="capture-container" id="captureContainer">
-                                <div class="capture-placeholder">
-                                    <div class="capture-info">
-                                        <i data-lucide="image" class="capture-icon" id="captureDisplayIcon"></i>
-                                        <p class="capture-title" id="captureTitle">Foto Terakhir</p>
-                                        <p class="capture-filename" id="captureFilename">last_monkey_capture.jpg</p>
-                                        <p class="capture-details" id="captureDetails">3 monyet terdeteksi</p>
-                                        <p class="capture-confidence" id="captureConfidence">Confidence: 94.2%</p>
-                                    </div>
-                                </div>
+                                <img id="captureImage" src="captures/last_monkey_capture.jpg" alt="Latest Capture" style="width: 100%; height: auto;">
                                 <div class="detection-overlay">
                                     <div class="detection-box-small" style="top: 25%; left: 33%;">
                                         <div class="detection-label-small">Monyet</div>
@@ -239,6 +229,12 @@
                                     </div>
                                 </div>
                                 <div class="capture-timestamp" id="captureTimestamp"></div>
+                            </div>
+                            <div class="capture-info">
+                                <p class="capture-title" id="captureTitle">Foto Terakhir</p>
+                                <p class="capture-filename" id="captureFilename">last_monkey_capture.jpg</p>
+                                <p class="capture-details" id="captureDetails">3 monyet terdeteksi</p>
+                                <p class="capture-confidence" id="captureConfidence">Confidence: 94.2%</p>
                             </div>
                         </div>
                     </div>
@@ -312,13 +308,9 @@
         </div>
     </div>
 
-    <!-- Fixed script loading by removing type="module" and ensuring main.js uses vanilla JavaScript -->
     <script>
-        // Initialize Lucide icons after DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
+            lucide.createIcons();
         });
     </script>
     <script src="main.js"></script>
