@@ -1,391 +1,491 @@
-class MonkeyDetectionMonitor {
-  constructor() {
-    this.baseURL = "https://5bf9bb00371a.ngrok-free.app"; // Default lokal
-    this.initializeBaseURL();
+import { Chart } from "@/components/ui/chart"
+// API Configuration
+const API_BASE_URL = "http://localhost:5000/api"
+const VIDEO_STREAM_URL = "http://localhost:5000/video_feed"
+const REFRESH_INTERVAL = 5000 // 5 seconds
+const RETRY_INTERVAL = 3000 // 3 seconds for failed requests
 
-    this.endpoints = {
-      videoFeed: "/video_feed",
-      history: "/api/history",
-      status: "/api/status",
-      clearHistory: "/api/clear_history"
-    };
+// Global State
+let currentTab = "dashboard"
+let monkeyCount = 7
+let chartFilter = "day"
+let chart = null
+const boxPosition = { x: 50, y: 50 }
+const boxDirection = { x: 2, y: 1.5 }
+let mqttConnected = true
+let lastDetectionTime = new Date()
+let isDarkMode = false
+let isHelpOpen = false
+let latestCapture = {
+  type: "image",
+  timestamp: new Date(),
+  filename: "last_monkey_capture.jpg",
+  monkeyCount: 3,
+  confidence: 94.2,
+  hasCapture: true,
+}
 
-    this.lastDetectionCount = 0;
-    this.refreshInterval = null;
-    this.isConnected = false;
-    this.videoRetryAttempts = 0;
-    this.maxVideoRetries = 10;
-    this.retryDelay = 10000;
+// Chart Data
+const chartData = {
+  day: [
+    { name: "00:00", monkeys: 2 },
+    { name: "04:00", monkeys: 1 },
+    { name: "08:00", monkeys: 8 },
+    { name: "12:00", monkeys: 12 },
+    { name: "16:00", monkeys: 15 },
+    { name: "20:00", monkeys: 6 },
+  ],
+  week: [
+    { name: "Sen", monkeys: 45 },
+    { name: "Sel", monkeys: 52 },
+    { name: "Rab", monkeys: 38 },
+    { name: "Kam", monkeys: 61 },
+    { name: "Jum", monkeys: 43 },
+    { name: "Sab", monkeys: 28 },
+    { name: "Min", monkeys: 35 },
+  ],
+  month: [
+    { name: "Jan", monkeys: 320 },
+    { name: "Feb", monkeys: 280 },
+    { name: "Mar", monkeys: 450 },
+    { name: "Apr", monkeys: 380 },
+    { name: "Mei", monkeys: 520 },
+    { name: "Jun", monkeys: 390 },
+  ],
+}
 
-    this.initializeElements();
-    this.setupEventListeners();
-    this.startMonitoring();
-  }
+// Lucide Icons Library
+const lucide = {
+  createIcons: () => {
+    // Placeholder for Lucide icon creation logic
+    console.log("Lucide icons created")
+  },
+}
 
-  initializeBaseURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const customBaseURL = urlParams.get('baseURL');
-    if (customBaseURL) {
-      this.baseURL = customBaseURL.replace(/\/$/, '');
-      console.log(`Base URL set from query parameter: ${this.baseURL}`);
-    }
-    // Validasi baseURL
-    try {
-      new URL(this.baseURL);
-    } catch (e) {
-      console.error(`Invalid baseURL: ${this.baseURL}, reverting to default`);
-      this.baseURL = "http://localhost:5000";
-    }
-  }
+// Initialize Dashboard
+document.addEventListener("DOMContentLoaded", () => {
+  initializeIcons()
+  initializeEventListeners()
+  initializeChart()
+  startAnimations()
+  startDataUpdates()
+  updateUI()
+})
 
-  initializeElements() {
-    this.videoCanvas = document.getElementById("videoCanvas");
-    this.videoOverlay = document.getElementById("videoOverlay");
-    this.systemStatus = document.getElementById("systemStatus");
-    this.systemStatusText = document.getElementById("systemStatusText");
-    this.monkeyCount = document.getElementById("monkeyCount");
-    this.lastDetection = document.getElementById("lastDetection");
-    this.historyTableBody = document.getElementById("historyTableBody");
-    this.refreshBtn = document.getElementById("refreshBtn");
-    this.toastContainer = document.getElementById("toastContainer");
+// Initialize Lucide Icons
+function initializeIcons() {
+  lucide.createIcons()
+}
 
-    // Null checks
-    if (!this.videoCanvas) console.warn("videoCanvas element not found in DOM");
-    if (!this.videoOverlay) console.warn("videoOverlay element not found in DOM");
-    if (!this.systemStatus) console.warn("systemStatus element not found in DOM");
-    if (!this.systemStatusText) console.warn("systemStatusText element not found in DOM");
-    if (!this.monkeyCount) console.warn("monkeyCount element not found in DOM");
-    if (!this.lastDetection) console.warn("lastDetection element not found in DOM");
-    if (!this.historyTableBody) console.warn("historyTableBody element not found in DOM");
-    if (!this.refreshBtn) console.warn("refreshBtn element not found in DOM");
-    if (!this.toastContainer) console.warn("toastContainer element not found in DOM");
+// Initialize Event Listeners
+function initializeEventListeners() {
+  // Tab Navigation
+  document.querySelectorAll(".nav-button").forEach((button) => {
+    button.addEventListener("click", function () {
+      const tab = this.dataset.tab
+      switchTab(tab)
+    })
+  })
 
-    this.statusDot = this.systemStatus ? this.systemStatus.querySelector(".status-dot") : null;
-    this.statusText = this.systemStatus ? this.systemStatus.querySelector(".status-text") : null;
-    this.ctx = this.videoCanvas ? this.videoCanvas.getContext('2d') : null;
-  }
+  // Theme Toggle
+  document.getElementById("themeToggle").addEventListener("click", toggleTheme)
 
-  setupEventListeners() {
-    if (this.refreshBtn) {
-      this.refreshBtn.addEventListener("click", () => {
-        this.refreshData();
-      });
-    } else {
-      console.warn("Cannot set up refreshBtn event listener: element is null");
-    }
+  // Help Toggle
+  document.getElementById("helpToggle").addEventListener("click", toggleHelp)
 
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        this.stopMonitoring();
-      } else {
-        this.startMonitoring();
-      }
-    });
+  // Chart Filter Buttons
+  document.querySelectorAll(".filter-btn").forEach((button) => {
+    button.addEventListener("click", function () {
+      const filter = this.dataset.filter
+      setChartFilter(filter)
+    })
+  })
 
-    window.monitor = this;
-  }
+  // Download Button
+  document.getElementById("downloadBtn").addEventListener("click", downloadCapture)
+}
 
-  startMonitoring() {
-    if (this.videoCanvas && this.ctx) {
-      this.initializeVideoFeed();
-    } else {
-      console.error("Cannot start video feed: videoCanvas or context is missing");
-      this.showNotification("❌ Cannot display video: Canvas element is missing", "error");
-    }
-    this.loadStatusData();
-    this.loadHistoryData();
-    this.refreshInterval = setInterval(() => {
-      this.loadStatusData();
-      this.loadHistoryData();
-    }, 5000);
-    console.log("Monitoring dimulai");
-  }
+// Tab Switching
+function switchTab(tabName) {
+  // Update active nav button
+  document.querySelectorAll(".nav-button").forEach((btn) => btn.classList.remove("active"))
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add("active")
 
-  stopMonitoring() {
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-      this.refreshInterval = null;
-    }
-    console.log("Monitoring dihentikan");
-  }
+  // Update active tab content
+  document.querySelectorAll(".tab-content").forEach((tab) => tab.classList.remove("active"))
+  document.getElementById(tabName).classList.add("active")
 
-  initializeVideoFeed() {
-    const videoUrl = `${this.baseURL}${this.endpoints.videoFeed}?t=${Date.now()}`;
-    console.log(`Mencoba memuat feed video dari: ${videoUrl}`);
-    this.loadMjpegStream(videoUrl);
-  }
+  currentTab = tabName
 
-  async loadMjpegStream(url) {
-    if (!this.videoCanvas || !this.ctx) {
-      console.error("Cannot load MJPEG stream: Canvas or context is missing");
-      this.retryVideoFeed();
-      return;
-    }
-
-    try {
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'ngrok-skip-browser-warning': 'true'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const reader = response.body.getReader();
-      let buffer = new Uint8Array();
-      const boundary = '--frame';
-
-      if (this.videoOverlay) {
-        this.videoOverlay.classList.add("hidden");
-      }
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          console.log("MJPEG stream ended");
-          break;
-        }
-
-        buffer = this.appendBuffer(buffer, value);
-
-        let boundaryIndex;
-        while ((boundaryIndex = this.findBoundary(buffer, boundary)) !== -1) {
-          const headerEnd = buffer.indexOf(new Uint8Array([0x0D, 0x0A, 0x0D, 0x0A]), boundaryIndex);
-          if (headerEnd === -1) break;
-
-          const frameStart = headerEnd + 4;
-          const frameEnd = this.findNextBoundary(buffer, frameStart, boundary);
-
-          if (frameEnd === -1) break;
-
-          const frameData = buffer.slice(frameStart, frameEnd);
-          const blob = new Blob([frameData], { type: 'image/jpeg' });
-          const imgUrl = URL.createObjectURL(blob);
-
-          const img = new Image();
-          img.onload = () => {
-            this.ctx.drawImage(img, 0, 0, this.videoCanvas.width, this.videoCanvas.height);
-            URL.revokeObjectURL(imgUrl);
-          };
-          img.onerror = () => {
-            console.error("Failed to load image frame");
-            URL.revokeObjectURL(imgUrl);
-          };
-          img.src = imgUrl;
-
-          buffer = buffer.slice(frameEnd);
-        }
-      }
-    } catch (error) {
-      console.error("Error memuat MJPEG stream:", error);
-      if (this.videoOverlay) {
-        this.videoOverlay.innerHTML = `
-          <div class="loading-spinner"></div>
-          <p>Koneksi kamera gagal: ${error.message}. <button onclick="window.monitor.retryVideoFeed()">Coba Lagi</button></p>
-        `;
-        this.videoOverlay.classList.remove("hidden");
-      }
-      this.retryVideoFeed();
-    }
-  }
-
-  appendBuffer(buffer1, buffer2) {
-    const tmp = new Uint8Array(buffer1.length + buffer2.length);
-    tmp.set(buffer1, 0);
-    tmp.set(buffer2, buffer1.length);
-    return tmp;
-  }
-
-  findBoundary(buffer, boundary) {
-    const boundaryBytes = new TextEncoder().encode(boundary);
-    for (let i = 0; i < buffer.length - boundaryBytes.length; i++) {
-      let match = true;
-      for (let j = 0; j < boundaryBytes.length; j++) {
-        if (buffer[i + j] !== boundaryBytes[j]) {
-          match = false;
-          break;
-        }
-      }
-      if (match) return i;
-    }
-    return -1;
-  }
-
-  findNextBoundary(buffer, start, boundary) {
-    const boundaryBytes = new TextEncoder().encode('\r\n' + boundary);
-    for (let i = start; i < buffer.length - boundaryBytes.length; i++) {
-      let match = true;
-      for (let j = 0; j < boundaryBytes.length; j++) {
-        if (buffer[i + j] !== boundaryBytes[j]) {
-          match = false;
-          break;
-        }
-      }
-      if (match) return i;
-    }
-    return -1;
-  }
-
-  retryVideoFeed() {
-    if (this.videoRetryAttempts < this.maxVideoRetries) {
-      this.videoRetryAttempts++;
-      console.log(`Mencoba ulang feed video, percobaan ${this.videoRetryAttempts}/${this.maxVideoRetries}`);
-      setTimeout(() => {
-        this.initializeVideoFeed();
-      }, this.retryDelay);
-    } else {
-      console.error("Batas maksimum percobaan feed video tercapai");
-      if (this.videoOverlay) {
-        this.videoOverlay.innerHTML = `
-          <p style="color: #ef4444;">Gagal terhubung ke feed webcam. Pastikan server backend berjalan dan URL benar.</p>
-          <button onclick="window.monitor.retryVideoFeed()">Coba Lagi</button>
-        `;
-        this.videoOverlay.classList.remove("hidden");
-      }
-      this.showNotification("❌ Gagal terhubung ke feed webcam. Pastikan server backend berjalan dan URL aktif.", "error");
-      this.videoRetryAttempts = 0;
-    }
-  }
-
-  async apiCall(endpoint, method = "GET") {
-    try {
-      const url = `${this.baseURL}${endpoint}`;
-      console.log(`Membuat panggilan API: ${method} ${url}`);
-      const config = {
-        method: method,
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        }
-      };
-
-      const response = await fetch(url, config);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log(`Data respons untuk ${endpoint}:`, data);
-      return data;
-    } catch (error) {
-      console.error(`Error API (${method} ${endpoint}):`, error);
-      this.showNotification(`❌ Gagal terhubung ke server: ${error.message}. Pastikan server backend aktif.`, "error");
-      throw error;
-    }
-  }
-
-  async loadStatusData() {
-    try {
-      const data = await this.apiCall(this.endpoints.status);
-      this.updateDashboard(data);
-    } catch (error) {
-      this.handleAPIError(error, "Status");
-    }
-  }
-
-  async loadHistoryData() {
-    try {
-      const data = await this.apiCall(this.endpoints.history);
-      this.updateHistoryTable(data);
-    } catch (error) {
-      this.handleAPIError(error, "Riwayat");
-    }
-  }
-
-  updateDashboard(data) {
-    if (this.systemStatusText) {
-      this.systemStatusText.textContent = data.system_status || "Unknown";
-    }
-    if (this.monkeyCount) {
-      this.monkeyCount.textContent = data.current_detections || 0;
-    }
-    if (this.lastDetection) {
-      this.lastDetection.textContent = data.last_detection || "Belum ada deteksi";
-    }
-    this.updateSystemStatus(data.system_status || "Unknown");
-  }
-
-  updateHistoryTable(data) {
-    if (!this.historyTableBody) return;
-    this.historyTableBody.innerHTML = "";
-    (data.history || []).forEach(entry => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${this.formatTime(entry.time)}</td>
-        <td>${entry.count}</td>
-        <td>${entry.location || "Unknown"}</td>
-      `;
-      this.historyTableBody.appendChild(row);
-    });
-  }
-
-  updateSystemStatus(status) {
-    if (!this.statusDot || !this.statusText) return;
-    this.statusDot.className = "status-dot";
-    this.statusText.textContent = status;
-    if (status === "Active") {
-      this.statusDot.classList.add("active");
-    } else if (status === "Error") {
-      this.statusDot.classList.add("error");
-    } else {
-      this.statusDot.classList.add("initializing");
-    }
-  }
-
-  showNotification(message, type) {
-    if (!this.toastContainer) return;
-    const toast = document.createElement("div");
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-    this.toastContainer.appendChild(toast);
+  // Reinitialize chart if switching to statistics
+  if (tabName === "statistics" && chart) {
     setTimeout(() => {
-      toast.classList.add("show");
-      setTimeout(() => {
-        toast.classList.remove("show");
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
-    }, 100);
-  }
-
-  formatTime(timeStr) {
-    if (!timeStr || timeStr === "Belum ada deteksi") return timeStr;
-    const date = new Date(timeStr);
-    return date.toLocaleString("id-ID", {
-      dateStyle: "medium",
-      timeStyle: "short"
-    });
-  }
-
-  handleAPIError(error, context) {
-    console.error(`Error loading ${context}:`, error);
-    this.showNotification(`❌ Gagal memuat ${context.toLowerCase()}: ${error.message}`, "error");
-  }
-
-  async refreshData() {
-    this.showNotification("🔄 Memperbarui data...", "info");
-    await Promise.all([
-      this.loadStatusData(),
-      this.loadHistoryData()
-    ]);
-    this.showNotification("✅ Data berhasil diperbarui", "success");
+      chart.resize()
+    }, 100)
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("Memuat aplikasi...");
-  new MonkeyDetectionMonitor();
-  console.log("Aplikasi berhasil dimuat");
-});
+// Theme Toggle
+function toggleTheme() {
+  isDarkMode = !isDarkMode
+  const body = document.body
+  const themeIcon = document.querySelector("#themeToggle .icon")
+  const themeText = document.querySelector("#themeToggle .nav-text")
 
-window.addEventListener("error", (event) => {
-  console.error("Error global:", event.error);
-});
+  if (isDarkMode) {
+    body.setAttribute("data-theme", "light")
+    themeIcon.setAttribute("data-lucide", "sun")
+    themeText.textContent = "Mode Terang"
+  } else {
+    body.removeAttribute("data-theme")
+    themeIcon.setAttribute("data-lucide", "moon")
+    themeText.textContent = "Mode Gelap"
+  }
 
-window.addEventListener("unhandledrejection", (event) => {
-  console.error("Penolakan promise yang tidak ditangani:", event.reason);
-});
+  lucide.createIcons()
+}
+
+// Help Toggle
+function toggleHelp() {
+  isHelpOpen = !isHelpOpen
+  const helpHeader = document.getElementById("helpToggle")
+  const helpContent = document.getElementById("helpContent")
+
+  if (isHelpOpen) {
+    helpHeader.classList.add("open")
+    helpContent.classList.add("open")
+  } else {
+    helpHeader.classList.remove("open")
+    helpContent.classList.remove("open")
+  }
+}
+
+// Chart Filter
+function setChartFilter(filter) {
+  chartFilter = filter
+
+  // Update active filter button
+  document.querySelectorAll(".filter-btn").forEach((btn) => btn.classList.remove("active"))
+  document.querySelector(`[data-filter="${filter}"]`).classList.add("active")
+
+  // Update chart
+  updateChart()
+  updateChartConclusion()
+  updateStatsSummary()
+}
+
+// Initialize Chart
+function initializeChart() {
+  const ctx = document.getElementById("monkeyChart").getContext("2d")
+
+  chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: chartData[chartFilter].map((item) => item.name),
+      datasets: [
+        {
+          label: "Jumlah Monyet",
+          data: chartData[chartFilter].map((item) => item.monkeys),
+          backgroundColor: "rgba(0, 255, 136, 0.8)",
+          borderColor: "rgba(0, 255, 136, 1)",
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-primary"),
+          },
+        },
+        tooltip: {
+          backgroundColor: getComputedStyle(document.documentElement).getPropertyValue("--card-bg"),
+          titleColor: getComputedStyle(document.documentElement).getPropertyValue("--text-primary"),
+          bodyColor: getComputedStyle(document.documentElement).getPropertyValue("--text-primary"),
+          borderColor: getComputedStyle(document.documentElement).getPropertyValue("--border-color"),
+          borderWidth: 1,
+        },
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-secondary"),
+          },
+          grid: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--border-color"),
+          },
+        },
+        x: {
+          ticks: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--text-secondary"),
+          },
+          grid: {
+            color: getComputedStyle(document.documentElement).getPropertyValue("--border-color"),
+          },
+        },
+      },
+    },
+  })
+}
+
+// Update Chart
+function updateChart() {
+  if (chart) {
+    const data = chartData[chartFilter]
+    chart.data.labels = data.map((item) => item.name)
+    chart.data.datasets[0].data = data.map((item) => item.monkeys)
+    chart.update()
+  }
+}
+
+// Update Chart Conclusion
+function updateChartConclusion() {
+  const conclusions = {
+    day: "Puncak aktivitas: 16:00 (rata-rata 15 monyet)",
+    week: "Hari tersibuk: Kamis (rata-rata 61 monyet)",
+    month: "Bulan terbanyak: Mei (520 monyet total)",
+  }
+
+  document.getElementById("chartConclusion").textContent = conclusions[chartFilter]
+}
+
+// Update Stats Summary
+function updateStatsSummary() {
+  const data = chartData[chartFilter]
+  const total = data.reduce((sum, item) => sum + item.monkeys, 0)
+  const average = Math.round(total / data.length)
+  const maximum = Math.max(...data.map((item) => item.monkeys))
+
+  document.getElementById("totalDetections").textContent = total
+  document.getElementById("averageDetections").textContent = average
+  document.getElementById("maxDetections").textContent = maximum
+}
+
+// Start Animations
+function startAnimations() {
+  // Detection box animation
+  setInterval(() => {
+    const detectionBox = document.getElementById("detectionBox")
+    if (!detectionBox) return
+
+    boxPosition.x += boxDirection.x
+    boxPosition.y += boxDirection.y
+
+    if (boxPosition.x <= 0 || boxPosition.x >= 85) {
+      boxDirection.x = -boxDirection.x
+      boxPosition.x = Math.max(0, Math.min(85, boxPosition.x))
+    }
+    if (boxPosition.y <= 0 || boxPosition.y >= 75) {
+      boxDirection.y = -boxDirection.y
+      boxPosition.y = Math.max(0, Math.min(75, boxPosition.y))
+    }
+
+    detectionBox.style.left = `${boxPosition.x}%`
+    detectionBox.style.top = `${boxPosition.y}%`
+  }, 50)
+
+  // Update timestamps
+  setInterval(updateTimestamps, 1000)
+}
+
+// Start Data Updates
+function startDataUpdates() {
+  // Simulate monkey count changes
+  setInterval(() => {
+    const change = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0
+    if (change !== 0) {
+      lastDetectionTime = new Date()
+      if (monkeyCount + change >= 0) {
+        monkeyCount = Math.max(0, monkeyCount + change)
+
+        // Update latest capture
+        if (monkeyCount > 0) {
+          latestCapture = {
+            type: Math.random() > 0.6 ? "video" : "image",
+            timestamp: new Date(),
+            filename: Math.random() > 0.6 ? "last_monkey_video.mp4" : "last_monkey_capture.jpg",
+            monkeyCount: monkeyCount,
+            confidence: 90 + Math.random() * 8,
+            hasCapture: true,
+          }
+          updateCaptureDisplay()
+        }
+      }
+    }
+    updateMonkeyCount()
+  }, 3000)
+
+  // Simulate MQTT connection status
+  setInterval(() => {
+    mqttConnected = Math.random() > 0.1 // 90% uptime
+    updateMQTTStatus()
+  }, 5000)
+}
+
+// Update UI
+function updateUI() {
+  updateMonkeyCount()
+  updateMQTTStatus()
+  updateTimestamps()
+  updateChartConclusion()
+  updateStatsSummary()
+  updateCaptureDisplay()
+}
+
+// Update Monkey Count
+function updateMonkeyCount() {
+  document.getElementById("monkeyCount").textContent = monkeyCount
+  document.getElementById("lastDetection").textContent = `Terakhir: ${lastDetectionTime.toLocaleTimeString("id-ID")}`
+}
+
+// Update MQTT Status
+function updateMQTTStatus() {
+  const mqttIcon = document.getElementById("mqttIcon")
+  const mqttStatus = document.getElementById("mqttStatus")
+  const mqttBadge = document.getElementById("mqttBadge")
+  const mqttStatusBadge = document.getElementById("mqttStatusBadge")
+
+  if (mqttConnected) {
+    mqttIcon.setAttribute("data-lucide", "wifi")
+    mqttStatus.textContent = "MQTT Terhubung"
+    mqttBadge.textContent = "MQTT Aktif"
+    mqttBadge.className = "badge success"
+    mqttStatusBadge.textContent = "Terhubung"
+    mqttStatusBadge.className = "badge success"
+  } else {
+    mqttIcon.setAttribute("data-lucide", "wifi-off")
+    mqttStatus.textContent = "MQTT Terputus"
+    mqttBadge.textContent = "MQTT Error"
+    mqttBadge.className = "badge error"
+    mqttStatusBadge.textContent = "Error"
+    mqttStatusBadge.className = "badge error"
+  }
+
+  lucide.createIcons()
+}
+
+// Update Timestamps
+function updateTimestamps() {
+  const now = new Date()
+  document.getElementById("currentTime").textContent = now.toLocaleString("id-ID")
+  document.getElementById("videoTimestamp").textContent =
+    `Terakhir update: ${lastDetectionTime.toLocaleTimeString("id-ID")}`
+}
+
+// Update Capture Display
+function updateCaptureDisplay() {
+  const captureIcon = document.getElementById("captureIcon")
+  const captureDisplayIcon = document.getElementById("captureDisplayIcon")
+  const captureTypeBadge = document.getElementById("captureTypeBadge")
+  const captureTitle = document.getElementById("captureTitle")
+  const captureFilename = document.getElementById("captureFilename")
+  const captureDetails = document.getElementById("captureDetails")
+  const captureConfidence = document.getElementById("captureConfidence")
+  const captureTimestamp = document.getElementById("captureTimestamp")
+  const captureStatus = document.getElementById("captureStatus")
+  const fileType = document.getElementById("fileType")
+  const fileSize = document.getElementById("fileSize")
+  const fileDuration = document.getElementById("fileDuration")
+  const downloadBtn = document.getElementById("downloadBtn")
+
+  if (latestCapture.hasCapture) {
+    const isVideo = latestCapture.type === "video"
+
+    captureIcon.setAttribute("data-lucide", isVideo ? "play" : "image")
+    captureDisplayIcon.setAttribute("data-lucide", isVideo ? "play" : "image")
+    captureTypeBadge.textContent = isVideo ? "Video" : "Foto"
+    captureTitle.textContent = isVideo ? "Video Terakhir" : "Foto Terakhir"
+    captureFilename.textContent = latestCapture.filename
+    captureDetails.textContent = `${latestCapture.monkeyCount} monyet terdeteksi`
+    captureConfidence.textContent = `Confidence: ${latestCapture.confidence.toFixed(1)}%`
+    captureTimestamp.textContent = latestCapture.timestamp.toLocaleString("id-ID")
+    captureStatus.textContent = "Capture Tersedia"
+    captureStatus.className = "badge success"
+
+    fileType.textContent = isVideo ? "Video MP4" : "Foto JPG"
+    fileSize.textContent = isVideo ? "2.4 MB" : "856 KB"
+    fileDuration.textContent = isVideo ? "5.2 detik" : "Instant"
+
+    downloadBtn.innerHTML = `
+            <i data-lucide="download" class="icon"></i>
+            Download ${isVideo ? "Video" : "Foto"}
+        `
+  } else {
+    captureStatus.textContent = "Tidak Ada Capture"
+    captureStatus.className = "badge"
+    fileType.textContent = "Tidak Ada"
+    fileSize.textContent = "-"
+    fileDuration.textContent = "-"
+  }
+
+  lucide.createIcons()
+}
+
+// Download Capture
+function downloadCapture() {
+  if (latestCapture.hasCapture) {
+    // Simulate download
+    const link = document.createElement("a")
+    link.href = "#"
+    link.download = latestCapture.filename
+    link.click()
+
+    // Show notification (you can implement a toast notification here)
+    alert(`Downloading ${latestCapture.filename}...`)
+  }
+}
+
+// API Functions (for future backend integration)
+async function fetchWithRetry(url, options = {}, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options)
+      if (response.ok) return response
+    } catch (error) {
+      if (i === retries - 1) throw error
+      await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)))
+    }
+  }
+}
+
+async function fetchStats() {
+  try {
+    const response = await fetchWithRetry(`${API_BASE_URL}/stats`)
+    const data = await response.json()
+
+    monkeyCount = data.current_count || 0
+    lastDetectionTime = new Date(data.last_detection || Date.now())
+    mqttConnected = data.system_status === "online"
+
+    updateMonkeyCount()
+    updateMQTTStatus()
+  } catch (error) {
+    console.error("Failed to fetch stats:", error)
+  }
+}
+
+async function fetchHistory() {
+  try {
+    const response = await fetchWithRetry(`${API_BASE_URL}/history`)
+    const data = await response.json()
+
+    // Update history data (implement as needed)
+    console.log("History data:", data)
+  } catch (error) {
+    console.error("Failed to fetch history:", error)
+  }
+}
+
+// Export functions for potential use
+window.MonkeyDashboard = {
+  switchTab,
+  toggleTheme,
+  setChartFilter,
+  fetchStats,
+  fetchHistory,
+}
