@@ -312,6 +312,15 @@
         </div>
     </div>
 
+    <!-- Fixed script loading by removing type="module" and ensuring main.js uses vanilla JavaScript -->
+    <script>
+        // Initialize Lucide icons after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
     <script src="main.js"></script>
 </body>
 </html>
